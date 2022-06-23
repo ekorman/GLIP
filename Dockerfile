@@ -16,6 +16,7 @@ RUN apt-get install -y wget
 # RUN dpkg -i cuda-repo-ubuntu1804-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb
 # RUN apt-get -y install gnupg2
 # RUN apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub
+# RUN apt-get update
 # RUN apt-get -y install cuda-10-2
 
 COPY ./ /code

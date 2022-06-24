@@ -9,16 +9,12 @@ import torch
 from tqdm import tqdm
 from collections import defaultdict
 
-from maskrcnn_benchmark.data.datasets.evaluation import evaluate, im_detect_bbox_aug
 from ..utils.comm import is_main_process
 from ..utils.comm import all_gather
 from ..utils.comm import synchronize
-import pdb
-from maskrcnn_benchmark.data.datasets.evaluation.flickr.flickr_eval import FlickrEvaluator
 from maskrcnn_benchmark.structures.bounding_box import BoxList
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
-from maskrcnn_benchmark.data.datasets.tsv import load_from_yaml_file
 def imshow(img, file_name = "tmp.jpg"):
     plt.imshow(img[:, :, [2, 1, 0]])
     plt.axis("off")
@@ -343,12 +339,6 @@ def build_flickr_evaluator(cfg):
         merge_boxes=cfg.DATASETS.FLICKR_GT_TYPE == "merged")
     return evaluator
 
-def build_lvis_evaluator(ann_file, fixed_ap=True):
-    from maskrcnn_benchmark.data.datasets.evaluation.lvis.lvis import LVIS
-    from maskrcnn_benchmark.data.datasets.evaluation.lvis.lvis_eval import LvisEvaluatorFixedAP, LvisEvaluator
-    evaluator = LvisEvaluatorFixedAP(LVIS(ann_file), fixed_ap=fixed_ap)
-    #evaluator = LvisEvaluator(LVIS(ann_file), iou_types=['segm', 'bbox'])
-    return evaluator
 
 def write_lvis_results(results, output_file_name):
     lines = []

@@ -11,8 +11,6 @@ import pdb
 from maskrcnn_benchmark.modeling.detector import build_detection_model
 from maskrcnn_benchmark.utils.checkpoint import DetectronCheckpointer
 from maskrcnn_benchmark.structures.image_list import to_image_list
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou
-from maskrcnn_benchmark.structures.bounding_box import BoxList
 from maskrcnn_benchmark import layers as L
 from maskrcnn_benchmark.modeling.roi_heads.mask_head.inference import Masker
 from maskrcnn_benchmark.utils import cv2_util
@@ -125,11 +123,6 @@ class GLIPDemo(object):
                 print("caption:", caption.lower())
 
         return tokens_positive
-
-    def inference(self, original_image, original_caption):
-        predictions = self.compute_prediction(original_image, original_caption)
-        top_predictions = self._post_process_fixed_thresh(predictions)
-        return top_predictions
 
     def run_on_web_image(self, 
             original_image, 

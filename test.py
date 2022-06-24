@@ -39,7 +39,7 @@ glip_demo = GLIPDemo(
     confidence_threshold=0.7,
     show_mask_heatmaps=False
 )
-
+glip_demo.color = 255
 image = load('http://farm4.staticflickr.com/3693/9472793441_b7822c00de_z.jpg')
 caption = 'bobble heads on top of the shelf'
 result, _ = glip_demo.run_on_web_image(image, caption, 0.5)

@@ -5,7 +5,6 @@ from torch import nn
 
 from maskrcnn_benchmark.modeling import registry
 from maskrcnn_benchmark.modeling.box_coder import BoxCoder
-from .loss import make_rpn_loss_evaluator
 from .anchor_generator import make_anchor_generator
 from .inference import make_rpn_postprocessor
 
@@ -103,13 +102,10 @@ class RPNModule(torch.nn.Module):
         box_selector_train = make_rpn_postprocessor(cfg, rpn_box_coder, is_train=True)
         box_selector_test = make_rpn_postprocessor(cfg, rpn_box_coder, is_train=False)
 
-        loss_evaluator = make_rpn_loss_evaluator(cfg, rpn_box_coder)
-
         self.anchor_generator = anchor_generator
         self.head = head
         self.box_selector_train = box_selector_train
         self.box_selector_test = box_selector_test
-        self.loss_evaluator = loss_evaluator
 
     def forward(self, images, features, targets=None):
         """
@@ -129,33 +125,7 @@ class RPNModule(torch.nn.Module):
         objectness, rpn_box_regression = self.head(features)
         anchors = self.anchor_generator(images, features)
 
-        if self.training:
-            return self._forward_train(anchors, objectness, rpn_box_regression, targets)
-        else:
-            return self._forward_test(anchors, objectness, rpn_box_regression)
-
-    def _forward_train(self, anchors, objectness, rpn_box_regression, targets):
-        if self.cfg.MODEL.RPN_ONLY:
-            # When training an RPN-only model, the loss is determined by the
-            # predicted objectness and rpn_box_regression values and there is
-            # no need to transform the anchors into predicted boxes; this is an
-            # optimization that avoids the unnecessary transformation.
-            boxes = anchors
-        else:
-            # For end-to-end models, anchors must be transformed into boxes and
-            # sampled into a training batch.
-            with torch.no_grad():
-                boxes = self.box_selector_train(
-                    anchors, objectness, rpn_box_regression, targets
-                )
-        loss_objectness, loss_rpn_box_reg = self.loss_evaluator(
-            anchors, objectness, rpn_box_regression, targets
-        )
-        losses = {
-            "loss_objectness": loss_objectness,
-            "loss_rpn_box_reg": loss_rpn_box_reg,
-        }
-        return boxes, losses
+        return self._forward_test(anchors, objectness, rpn_box_regression)
 
     def _forward_test(self, anchors, objectness, rpn_box_regression):
         boxes = self.box_selector_test(anchors, objectness, rpn_box_regression)

@@ -43,3 +43,4 @@ glip_demo.color = 255
 image = load('http://farm4.staticflickr.com/3693/9472793441_b7822c00de_z.jpg')
 caption = 'bobble heads on top of the shelf'
 result, _ = glip_demo.run_on_web_image(image, caption, 0.5)
+Image.fromarray(result[:,:,[2, 1, 0]]).save("result.png")

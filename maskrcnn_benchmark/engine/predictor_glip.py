@@ -2,7 +2,7 @@ import cv2
 import torch
 import re
 import numpy as np
-from typing import List, Union
+from typing import List
 import nltk
 import inflect
 from transformers import AutoTokenizer
@@ -174,13 +174,14 @@ class GLIPDemo(object):
         image_list = image_list.to(self.device)
         # caption
         if isinstance(original_caption, list):
+            self.entities = original_caption
             # we directly provided a list of category names
             caption_string = ""
             tokens_positive = []
             seperation_tokens = " . "
             for word in original_caption:
                 
-                tokens_positive.append([len(caption_string), len(caption_string) + len(word)])
+                tokens_positive.append([[len(caption_string), len(caption_string) + len(word)]])
                 caption_string += word
                 caption_string += seperation_tokens
             
@@ -194,7 +195,7 @@ class GLIPDemo(object):
             if custom_entity is None:
                 tokens_positive = self.run_ner(original_caption)
             print(tokens_positive)
-        # process positive map
+        print(f"tokenized: {tokenized}, tokens_positive: {tokens_positive}")
         positive_map = create_positive_map(tokenized, tokens_positive)
 
         if self.cfg.MODEL.RPN_ARCHITECTURE == "VLDYHEAD":

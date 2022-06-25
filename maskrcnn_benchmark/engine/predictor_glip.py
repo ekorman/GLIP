@@ -6,7 +6,6 @@ from torchvision import transforms as T
 from maskrcnn_benchmark.modeling.detector import build_detection_model
 from maskrcnn_benchmark.utils.checkpoint import DetectronCheckpointer
 from maskrcnn_benchmark.structures.image_list import to_image_list
-from maskrcnn_benchmark import layers as L
 from maskrcnn_benchmark.modeling.roi_heads.mask_head.inference import Masker
 from maskrcnn_benchmark.utils import cv2_util
 
@@ -20,7 +19,6 @@ class GLIPDemo(object):
         cfg,
         confidence_threshold=0.7,
         min_image_size=None,
-        show_mask_heatmaps=False,
         masks_per_dim=5,
         load_model=True,
     ):
@@ -31,7 +29,6 @@ class GLIPDemo(object):
             self.device = torch.device(cfg.MODEL.DEVICE)
             self.model.to(self.device)
         self.min_image_size = min_image_size
-        self.show_mask_heatmaps = show_mask_heatmaps
         self.masks_per_dim = masks_per_dim
 
         save_dir = cfg.OUTPUT_DIR
@@ -42,7 +39,7 @@ class GLIPDemo(object):
         self.transforms = self.build_transform()
 
         # used to make colors for each tokens
-        mask_threshold = -1 if show_mask_heatmaps else 0.5
+        mask_threshold = 0.5
         self.masker = Masker(threshold=mask_threshold, padding=1)
         self.palette = torch.tensor([2**25 - 1, 2**15 - 1, 2**21 - 1])
         self.cpu_device = torch.device("cpu")
@@ -105,37 +102,34 @@ class GLIPDemo(object):
     def run_on_web_image(
         self,
         original_image,
-        original_caption,
+        class_labels,
         thresh=0.5,
         custom_entity=None,
-        alpha=0.0,
     ):
         predictions = self.compute_prediction(
-            original_image, original_caption, custom_entity
+            original_image, class_labels, custom_entity
         )
         top_predictions = self._post_process(predictions, thresh)
 
         result = original_image.copy()
-        if self.show_mask_heatmaps:
-            return self.create_mask_montage(result, top_predictions)
         result = self.overlay_boxes(result, top_predictions)
         result = self.overlay_entity_names(result, top_predictions)
         if self.cfg.MODEL.MASK_ON:
             result = self.overlay_mask(result, top_predictions)
         return result, top_predictions
 
-    def compute_prediction(self, original_image, original_caption, custom_entity=None):
+    def compute_prediction(self, original_image, class_labels, custom_entity=None):
         # image
         image = self.transforms(original_image)
         image_list = to_image_list(image, self.cfg.DATALOADER.SIZE_DIVISIBILITY)
         image_list = image_list.to(self.device)
         # caption
-        self.entities = original_caption
+        self.entities = class_labels
         # we directly provided a list of category names
         caption_string = ""
         tokens_positive = []
         seperation_tokens = " . "
-        for word in original_caption:
+        for word in class_labels:
 
             tokens_positive.append(
                 [[len(caption_string), len(caption_string) + len(word)]]
@@ -146,7 +140,6 @@ class GLIPDemo(object):
         tokenized = self.tokenizer([caption_string], return_tensors="pt")
         tokens_positive = [tokens_positive]
 
-        original_caption = caption_string
         print(tokens_positive)
 
         print(f"tokenized: {tokenized}, tokens_positive: {tokens_positive}")
@@ -170,7 +163,7 @@ class GLIPDemo(object):
         with torch.no_grad():
             predictions = self.model(
                 image_list,
-                captions=[original_caption],
+                captions=[caption_string],
                 positive_map=positive_map_label_to_token,
             )
             predictions = [o.to(self.cpu_device) for o in predictions]
@@ -339,32 +332,6 @@ class GLIPDemo(object):
         composite = image
 
         return composite
-
-    def create_mask_montage(self, image, predictions):
-        masks = predictions.get_field("mask")
-        masks_per_dim = self.masks_per_dim
-        masks = L.interpolate(masks.float(), scale_factor=1 / masks_per_dim).byte()
-        height, width = masks.shape[-2:]
-        max_masks = masks_per_dim**2
-        masks = masks[:max_masks]
-        # handle case where we have less detections than max_masks
-        if len(masks) < max_masks:
-            masks_padded = torch.zeros(max_masks, 1, height, width, dtype=torch.uint8)
-            masks_padded[: len(masks)] = masks
-            masks = masks_padded
-        masks = masks.reshape(masks_per_dim, masks_per_dim, height, width)
-        result = torch.zeros(
-            (masks_per_dim * height, masks_per_dim * width), dtype=torch.uint8
-        )
-        for y in range(masks_per_dim):
-            start_y = y * height
-            end_y = (y + 1) * height
-            for x in range(masks_per_dim):
-                start_x = x * width
-                end_x = (x + 1) * width
-                result[start_y:end_y, start_x:end_x] = masks[y, x]
-
-        return cv2.applyColorMap(result.numpy(), cv2.COLORMAP_JET), None
 
 
 def create_positive_map_label_to_token_from_positive_map(positive_map, plus=0):

@@ -2,8 +2,6 @@
 """
 Implements the Generalized R-CNN framework
 """
-
-import torch
 from torch import nn
 
 from maskrcnn_benchmark.structures.image_list import to_image_list

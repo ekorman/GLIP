@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Build the Docker image
+      - name: Build and push the docker image
         run: |
           docker build . -t ${{ env.IMAGE_NAME }}
           docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}

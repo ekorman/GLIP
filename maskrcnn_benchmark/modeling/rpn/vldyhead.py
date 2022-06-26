@@ -3,7 +3,6 @@ import torch.nn.functional as F
 from torch import nn
 
 from .inference import make_atss_postprocessor
-from .loss import make_atss_loss_evaluator
 from .anchor_generator import make_anchor_generator_complex
 
 from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
@@ -1032,7 +1031,6 @@ class VLDyHeadModule(torch.nn.Module):
         self.cfg = cfg
         self.head = VLDyHead(cfg)
         box_coder = BoxCoder(cfg)
-        self.loss_evaluator = make_atss_loss_evaluator(cfg, box_coder)
         self.box_selector_train = make_atss_postprocessor(cfg, box_coder, is_train=True)
         self.box_selector_test = make_atss_postprocessor(cfg, box_coder, is_train=False)
         self.anchor_generator = make_anchor_generator_complex(cfg)
@@ -1106,153 +1104,16 @@ class VLDyHeadModule(torch.nn.Module):
         ) = self.head(features, language_dict_features, embedding, swint_feature_c4)
         anchors = self.anchor_generator(images, features)
 
-        if self.training:
-            return self._forward_train(
-                box_cls,
-                box_regression,
-                centerness,
-                targets,
-                anchors,
-                captions,
-                positive_map,
-                token_logits,
-                proj_tokens,
-                contrastive_logits,
-                dot_product_logits,
-                text_masks,
-                mlm_logits=mlm_logits,
-                mlm_labels=language_dict_features["mlm_labels"],
-                shallow_img_emb_feats=shallow_img_emb_feats,
-                fused_visual_features=fused_visual_features,
-            )
-        else:
-            return self._forward_test(
-                box_regression,
-                centerness,
-                anchors,
-                box_cls,
-                token_logits,
-                dot_product_logits,
-                positive_map,
-                fused_visual_features=fused_visual_features,
-            )
-
-    def _forward_train(
-        self,
-        box_cls,
-        box_regression,
-        centerness,
-        targets,
-        anchors,
-        captions=None,
-        positive_map=None,
-        token_logits=None,
-        proj_tokens=None,
-        contrastive_logits=None,
-        dot_product_logits=None,
-        text_masks=None,
-        mlm_logits=None,
-        mlm_labels=None,
-        shallow_img_emb_feats=None,
-        fused_visual_features=None,
-    ):
-
-        (
-            loss_box_cls,
-            loss_box_reg,
-            loss_centerness,
-            loss_token,
-            loss_contrastive_align,
-            loss_dot_product_token,
-            loss_shallow_contrastive,
-        ) = self.loss_evaluator(
-            box_cls,
+        return self._forward_test(
             box_regression,
             centerness,
-            targets,
             anchors,
-            captions,
-            positive_map,
+            box_cls,
             token_logits,
-            proj_tokens,
-            contrastive_logits,
             dot_product_logits,
-            text_masks,
-            shallow_img_emb_feats,
+            positive_map,
+            fused_visual_features=fused_visual_features,
         )
-
-        losses = {
-            # "loss_cls": loss_box_cls,
-            "loss_reg": loss_box_reg,
-            "loss_centerness": loss_centerness,
-        }
-
-        if mlm_labels is not None and mlm_logits is not None:
-            losses["mlm_loss"] = (
-                nn.CrossEntropyLoss(ignore_index=-100)(
-                    mlm_logits.view(-1, mlm_logits.size(-1)), mlm_labels.view(-1)
-                )
-                * self.cfg.MODEL.DYHEAD.FUSE_CONFIG.MLM_LOSS_COEF
-            )
-
-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CLASSIFICATION_LOSS:
-            losses["loss_cls"] = loss_box_cls
-        else:
-            losses["loss_cls"] = 0.0 * loss_box_cls
-
-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_TOKEN_LOSS:
-            losses["loss_token"] = (
-                loss_token * self.cfg.MODEL.DYHEAD.FUSE_CONFIG.TOKEN_LOSS_WEIGHT
-            )
-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CONTRASTIVE_ALIGN_LOSS:
-            losses["loss_contrastive_align"] = (
-                loss_contrastive_align
-                * self.cfg.MODEL.DYHEAD.FUSE_CONFIG.CONTRASTIVE_ALIGN_LOSS_WEIGHT
-            )
-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_DOT_PRODUCT_TOKEN_LOSS:
-            losses["loss_dot_product_token"] = (
-                loss_dot_product_token
-                * self.cfg.MODEL.DYHEAD.FUSE_CONFIG.DOT_PRODUCT_TOKEN_LOSS_WEIGHT
-            )
-        if (
-            self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_SHALLOW_CONTRASTIVE_LOSS
-            or self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_BACKBONE_SHALLOW_CONTRASTIVE_LOSS
-        ):
-            losses["loss_shallow_contrastive"] = (
-                loss_shallow_contrastive
-                * self.cfg.MODEL.DYHEAD.FUSE_CONFIG.SHALLOW_CONTRASTIVE_LOSS_WEIGHT
-            )
-
-        if self.cfg.MODEL.RPN_ONLY:
-            return None, losses, None
-        else:
-            # Let's just use one image per batch
-            assert (box_regression[0].shape[0]) == 1
-            positive_map_label_to_token = (
-                create_positive_map_label_to_token_from_positive_map(
-                    positive_map, plus=1
-                )
-            )
-            boxes = self.box_selector_train(
-                box_regression,
-                centerness,
-                anchors,
-                box_cls,
-                token_logits,
-                dot_product_logits,
-                positive_map=positive_map_label_to_token,
-            )
-            train_boxes = []
-            for b, t in zip(boxes, targets):
-                tb = t.copy_with_fields(["labels"])
-                tb.add_field(
-                    "scores",
-                    torch.ones(
-                        tb.bbox.shape[0], dtype=torch.bool, device=tb.bbox.device
-                    ),
-                )
-                train_boxes.append(cat_boxlist([b, tb]))
-            return train_boxes, losses, fused_visual_features
 
     def _forward_test(
         self,

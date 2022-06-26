@@ -4,7 +4,6 @@ import torch.nn.functional as F
 from torch import nn
 
 from .inference import make_atss_postprocessor
-from .loss import make_atss_loss_evaluator
 from .anchor_generator import make_anchor_generator_complex
 
 from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
@@ -24,7 +23,6 @@ class h_sigmoid(nn.Module):
 
 
 class BoxCoder(object):
-
     def __init__(self, cfg):
         self.cfg = cfg
 
@@ -40,7 +38,7 @@ class BoxCoder(object):
         gt_ctr_x = (gt_boxes[:, 2] + gt_boxes[:, 0]) / 2
         gt_ctr_y = (gt_boxes[:, 3] + gt_boxes[:, 1]) / 2
 
-        wx, wy, ww, wh = (10., 10., 5., 5.)
+        wx, wy, ww, wh = (10.0, 10.0, 5.0, 5.0)
         targets_dx = wx * (gt_ctr_x - ex_ctr_x) / ex_widths
         targets_dy = wy * (gt_ctr_y - ex_ctr_y) / ex_heights
         targets_dw = ww * torch.log(gt_widths / ex_widths)
@@ -58,15 +56,15 @@ class BoxCoder(object):
         ctr_x = (anchors[:, 2] + anchors[:, 0]) / 2
         ctr_y = (anchors[:, 3] + anchors[:, 1]) / 2
 
-        wx, wy, ww, wh = (10., 10., 5., 5.)
+        wx, wy, ww, wh = (10.0, 10.0, 5.0, 5.0)
         dx = preds[:, 0::4] / wx
         dy = preds[:, 1::4] / wy
         dw = preds[:, 2::4] / ww
         dh = preds[:, 3::4] / wh
 
         # Prevent sending too large values into torch.exp()
-        dw = torch.clamp(dw, max=math.log(1000. / 16))
-        dh = torch.clamp(dh, max=math.log(1000. / 16))
+        dw = torch.clamp(dw, max=math.log(1000.0 / 16))
+        dh = torch.clamp(dh, max=math.log(1000.0 / 16))
 
         pred_ctr_x = dx * widths[:, None] + ctr_x[:, None]
         pred_ctr_y = dy * heights[:, None] + ctr_y[:, None]
@@ -83,20 +81,35 @@ class BoxCoder(object):
 
 
 class Conv3x3Norm(torch.nn.Module):
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 groups=1,
-                 deformable=False,
-                 bn_type=None):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        stride,
+        groups=1,
+        deformable=False,
+        bn_type=None,
+    ):
         super(Conv3x3Norm, self).__init__()
 
         if deformable:
-            self.conv = ModulatedDeformConv(in_channels, out_channels, kernel_size=3, stride=stride, padding=1,
-                                            groups=groups)
+            self.conv = ModulatedDeformConv(
+                in_channels,
+                out_channels,
+                kernel_size=3,
+                stride=stride,
+                padding=1,
+                groups=groups,
+            )
         else:
-            self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, groups=groups)
+            self.conv = nn.Conv2d(
+                in_channels,
+                out_channels,
+                kernel_size=3,
+                stride=stride,
+                padding=1,
+                groups=groups,
+            )
 
         if isinstance(bn_type, (list, tuple)):
             assert len(bn_type) == 2
@@ -127,14 +140,15 @@ class Conv3x3Norm(torch.nn.Module):
 
 
 class DyConv(torch.nn.Module):
-    def __init__(self,
-                 in_channels=256,
-                 out_channels=256,
-                 conv_func=nn.Conv2d,
-                 use_dyfuse=True,
-                 use_dyrelu=False,
-                 use_deform=False
-                 ):
+    def __init__(
+        self,
+        in_channels=256,
+        out_channels=256,
+        conv_func=nn.Conv2d,
+        use_dyfuse=True,
+        use_dyrelu=False,
+        use_deform=False,
+    ):
         super(DyConv, self).__init__()
 
         self.DyConv = nn.ModuleList()
@@ -146,7 +160,8 @@ class DyConv(torch.nn.Module):
             self.AttnConv = nn.Sequential(
                 nn.AdaptiveAvgPool2d(1),
                 nn.Conv2d(in_channels, 1, kernel_size=1),
-                nn.ReLU(inplace=True))
+                nn.ReLU(inplace=True),
+            )
             self.h_sigmoid = h_sigmoid()
         else:
             self.AttnConv = None
@@ -192,8 +207,12 @@ class DyConv(torch.nn.Module):
             if level > 0:
                 temp_fea.append(self.DyConv[2](x[level - 1], **conv_args))
             if level < len(x) - 1:
-                temp_fea.append(F.upsample_bilinear(self.DyConv[0](x[level + 1], **conv_args),
-                                                    size=[feature.size(2), feature.size(3)]))
+                temp_fea.append(
+                    F.upsample_bilinear(
+                        self.DyConv[0](x[level + 1], **conv_args),
+                        size=[feature.size(2), feature.size(3)],
+                    )
+                )
             mean_fea = torch.mean(torch.stack(temp_fea), dim=0, keepdim=False)
 
             if self.AttnConv is not None:
@@ -223,11 +242,11 @@ class DyHead(torch.nn.Module):
         in_channels = cfg.MODEL.BACKBONE.OUT_CHANNELS
         channels = cfg.MODEL.DYHEAD.CHANNELS
         if cfg.MODEL.DYHEAD.USE_GN:
-            bn_type = ['gn', cfg.MODEL.GROUP_NORM.NUM_GROUPS]
+            bn_type = ["gn", cfg.MODEL.GROUP_NORM.NUM_GROUPS]
         elif cfg.MODEL.DYHEAD.USE_NSYNCBN:
-            bn_type = 'nsbn'
+            bn_type = "nsbn"
         elif cfg.MODEL.DYHEAD.USE_SYNCBN:
-            bn_type = 'sbn'
+            bn_type = "sbn"
         else:
             bn_type = None
 
@@ -236,9 +255,13 @@ class DyHead(torch.nn.Module):
         use_deform = cfg.MODEL.DYHEAD.USE_DFCONV
 
         if cfg.MODEL.DYHEAD.CONV_FUNC:
-            conv_func = lambda i, o, s: eval(cfg.MODEL.DYHEAD.CONV_FUNC)(i, o, s, bn_type=bn_type)
+            conv_func = lambda i, o, s: eval(cfg.MODEL.DYHEAD.CONV_FUNC)(
+                i, o, s, bn_type=bn_type
+            )
         else:
-            conv_func = lambda i, o, s: Conv3x3Norm(i, o, s, deformable=use_deform, bn_type=bn_type)
+            conv_func = lambda i, o, s: Conv3x3Norm(
+                i, o, s, deformable=use_deform, bn_type=bn_type
+            )
 
         dyhead_tower = []
         for i in range(cfg.MODEL.DYHEAD.NUM_CONVS):
@@ -247,30 +270,43 @@ class DyHead(torch.nn.Module):
                     in_channels if i == 0 else channels,
                     channels,
                     conv_func=conv_func,
-                    use_dyrelu=(use_dyrelu and in_channels == channels) if i == 0 else use_dyrelu,
-                    use_dyfuse=(use_dyfuse and in_channels == channels) if i == 0 else use_dyfuse,
-                    use_deform=(use_deform and in_channels == channels) if i == 0 else use_deform,
+                    use_dyrelu=(use_dyrelu and in_channels == channels)
+                    if i == 0
+                    else use_dyrelu,
+                    use_dyfuse=(use_dyfuse and in_channels == channels)
+                    if i == 0
+                    else use_dyfuse,
+                    use_deform=(use_deform and in_channels == channels)
+                    if i == 0
+                    else use_deform,
                 )
             )
 
-        self.add_module('dyhead_tower', nn.Sequential(*dyhead_tower))
+        self.add_module("dyhead_tower", nn.Sequential(*dyhead_tower))
         if cfg.MODEL.DYHEAD.COSINE_SCALE <= 0:
-            self.cls_logits = nn.Conv2d(channels, num_anchors * num_classes, kernel_size=1)
+            self.cls_logits = nn.Conv2d(
+                channels, num_anchors * num_classes, kernel_size=1
+            )
             self.cls_logits_bias = None
         else:
-            self.cls_logits = nn.Conv2d(channels, num_anchors * num_classes, kernel_size=1, bias=False)
-            self.cls_logits_bias = nn.Parameter(torch.zeros(num_anchors * num_classes, requires_grad=True))
-            self.cosine_scale = nn.Parameter(torch.ones(1) * cfg.MODEL.DYHEAD.COSINE_SCALE)
+            self.cls_logits = nn.Conv2d(
+                channels, num_anchors * num_classes, kernel_size=1, bias=False
+            )
+            self.cls_logits_bias = nn.Parameter(
+                torch.zeros(num_anchors * num_classes, requires_grad=True)
+            )
+            self.cosine_scale = nn.Parameter(
+                torch.ones(1) * cfg.MODEL.DYHEAD.COSINE_SCALE
+            )
         self.bbox_pred = nn.Conv2d(channels, num_anchors * 4, kernel_size=1)
         self.centerness = nn.Conv2d(channels, num_anchors * 1, kernel_size=1)
 
         # initialization
-        for modules in [self.cls_logits, self.bbox_pred,
-                        self.centerness]:
+        for modules in [self.cls_logits, self.bbox_pred, self.centerness]:
             for l in modules.modules():
                 if isinstance(l, nn.Conv2d):
                     torch.nn.init.normal_(l.weight, std=0.01)
-                    if hasattr(l, 'bias') and l.bias is not None:
+                    if hasattr(l, "bias") and l.bias is not None:
                         torch.nn.init.constant_(l.bias, 0)
 
         # initialize the bias for focal loss
@@ -303,18 +339,21 @@ class DyHead(torch.nn.Module):
             else:
                 # CosineSimOutputLayers: https://github.com/ucbdrive/few-shot-object-detection/blob/master/fsdet/modeling/roi_heads/fast_rcnn.py#L448-L464
                 # normalize the input x along the `channel` dimension
-                x_norm = torch.norm(dyhead_tower[l], p=2, dim=1, keepdim=True).expand_as(dyhead_tower[l])
+                x_norm = torch.norm(
+                    dyhead_tower[l], p=2, dim=1, keepdim=True
+                ).expand_as(dyhead_tower[l])
                 x_normalized = dyhead_tower[l].div(x_norm + 1e-5)
                 # normalize weight
-                temp_norm = (
-                    torch.norm(self.cls_logits.weight.data, p=2, dim=1, keepdim=True)
-                        .expand_as(self.cls_logits.weight.data)
-                )
+                temp_norm = torch.norm(
+                    self.cls_logits.weight.data, p=2, dim=1, keepdim=True
+                ).expand_as(self.cls_logits.weight.data)
                 self.cls_logits.weight.data = self.cls_logits.weight.data.div(
                     temp_norm + 1e-5
                 )
                 cos_dist = self.cls_logits(x_normalized)
-                logit = self.cosine_scale * cos_dist + self.cls_logits_bias.reshape(1, len(self.cls_logits_bias), 1, 1)
+                logit = self.cosine_scale * cos_dist + self.cls_logits_bias.reshape(
+                    1, len(self.cls_logits_bias), 1, 1
+                )
             logits.append(logit)
 
             bbox_pred = self.scales[l](self.bbox_pred(dyhead_tower[l]))
@@ -325,13 +364,11 @@ class DyHead(torch.nn.Module):
 
 
 class DyHeadModule(torch.nn.Module):
-
     def __init__(self, cfg):
         super(DyHeadModule, self).__init__()
         self.cfg = cfg
         self.head = DyHead(cfg)
         box_coder = BoxCoder(cfg)
-        self.loss_evaluator = make_atss_loss_evaluator(cfg, box_coder)
         self.box_selector_train = make_atss_postprocessor(cfg, box_coder, is_train=True)
         self.box_selector_test = make_atss_postprocessor(cfg, box_coder, is_train=False)
         self.anchor_generator = make_anchor_generator_complex(cfg)
@@ -340,37 +377,7 @@ class DyHeadModule(torch.nn.Module):
         box_cls, box_regression, centerness = self.head(features)
         anchors = self.anchor_generator(images, features)
 
-        if self.training:
-            return self._forward_train(box_cls, box_regression, centerness, targets, anchors)
-        else:
-            return self._forward_test(box_cls, box_regression, centerness, anchors)
-
-    def _forward_train(self, box_cls, box_regression, centerness, targets, anchors):
-        loss_box_cls, loss_box_reg, loss_centerness, _, _, _, _ = self.loss_evaluator(
-            box_cls, box_regression, centerness, targets, anchors
-        )
-        losses = {
-            "loss_cls": loss_box_cls,
-            "loss_reg": loss_box_reg,
-            "loss_centerness": loss_centerness
-        }
-        if self.cfg.MODEL.RPN_ONLY:
-            return None, losses
-        else:
-            # boxes = self.box_selector_train(box_cls, box_regression, centerness, anchors)
-            boxes = self.box_selector_train(box_regression, centerness, anchors, box_cls)
-            train_boxes = []
-            # for b, a in zip(boxes, anchors):
-            #     a = cat_boxlist(a)
-            #     b.add_field("visibility", torch.ones(b.bbox.shape[0], dtype=torch.bool, device=b.bbox.device))
-            #     del b.extra_fields['scores']
-            #     del b.extra_fields['labels']
-            #     train_boxes.append(cat_boxlist([b, a]))
-            for b, t in zip(boxes, targets):
-                tb = t.copy_with_fields(["labels"])
-                tb.add_field("scores", torch.ones(tb.bbox.shape[0], dtype=torch.bool, device=tb.bbox.device))
-                train_boxes.append(cat_boxlist([b, tb]))
-            return train_boxes, losses
+        return self._forward_test(box_cls, box_regression, centerness, anchors)
 
     def _forward_test(self, box_cls, box_regression, centerness, anchors):
         boxes = self.box_selector_test(box_regression, centerness, anchors, box_cls)

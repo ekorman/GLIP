@@ -138,7 +138,6 @@ class GLIPDemo(object):
             caption_string += seperation_tokens
 
         tokenized = self.tokenizer([caption_string], return_tensors="pt")
-        tokens_positive = [tokens_positive]
 
         print(tokens_positive)
 

@@ -12,9 +12,7 @@ RUN apt install -y python3.8 python3-pip python3.8-dev
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python3.8 get-pip.py
 
-RUN pip3.8 install torch==1.9.0 torchvision
-RUN pip3.8 install einops shapely timm yacs tensorboardX ftfy prettytable pymongo transformers
-RUN pip3.8 install transformers
+RUN pip3.8 install torch==1.9.0 torchvision einops shapely timm yacs tensorboardX ftfy transformers
 
 RUN apt install -y build-essential
 

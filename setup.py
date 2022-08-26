@@ -16,7 +16,7 @@ requirements = ["torch", "torchvision"]
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(this_dir, "maskrcnn_benchmark", "csrc")
+    extensions_dir = os.path.join(this_dir, "glip", "csrc")
 
     main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
     source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
@@ -45,7 +45,7 @@ def get_extensions():
 
     ext_modules = [
         extension(
-            "maskrcnn_benchmark._C",
+            "glip._C",
             sources,
             include_dirs=include_dirs,
             define_macros=define_macros,
@@ -57,7 +57,7 @@ def get_extensions():
 
 
 setup(
-    name="maskrcnn_benchmark",
+    name="glip",
     description="object detection in pytorch",
     packages=find_packages(exclude=("configs", "tests",)),
     # install_requires=requirements,

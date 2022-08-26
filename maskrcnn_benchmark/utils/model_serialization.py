@@ -4,7 +4,7 @@ import logging
 import math
 import torch
 
-from maskrcnn_benchmark.utils.imports import import_file
+from glip.utils.imports import import_file
 
 def resize_2d(posemb, shape_new):
     # Rescale the grid of position embeddings when loading from state_dict. Adapted from

@@ -6,7 +6,7 @@ from .roi_box_feature_extractors import make_roi_box_feature_extractor
 from .roi_box_predictors import make_roi_box_predictor
 from .inference import make_roi_box_post_processor
 from .loss import make_roi_box_loss_evaluator
-from maskrcnn_benchmark.utils.amp import custom_fwd, custom_bwd
+from glip.utils.amp import custom_fwd, custom_bwd
 
 class ROIBoxHead(torch.nn.Module):
     """

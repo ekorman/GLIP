@@ -6,9 +6,9 @@ Miscellaneous utility functions
 import torch
 from torch import nn
 from torch.nn import functional as F
-from maskrcnn_benchmark.config import cfg
-from maskrcnn_benchmark.layers import Conv2d, DYReLU
-from maskrcnn_benchmark.modeling.poolers import Pooler
+from glip.config import cfg
+from glip.layers import Conv2d, DYReLU
+from glip.modeling.poolers import Pooler
 
 
 def get_group_gn(dim, dim_per_gp, num_groups):

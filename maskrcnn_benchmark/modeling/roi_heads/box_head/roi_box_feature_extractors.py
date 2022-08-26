@@ -3,11 +3,11 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from maskrcnn_benchmark.modeling import registry
-from maskrcnn_benchmark.modeling.backbone import resnet
-from maskrcnn_benchmark.modeling.poolers import Pooler
-from maskrcnn_benchmark.modeling.make_layers import group_norm
-from maskrcnn_benchmark.modeling.make_layers import make_fc
+from glip.modeling import registry
+from glip.modeling.backbone import resnet
+from glip.modeling.poolers import Pooler
+from glip.modeling.make_layers import group_norm
+from glip.modeling.make_layers import make_fc
 
 
 

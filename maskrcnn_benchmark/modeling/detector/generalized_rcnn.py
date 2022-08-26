@@ -4,7 +4,7 @@ Implements the Generalized R-CNN framework
 """
 from torch import nn
 
-from maskrcnn_benchmark.structures.image_list import to_image_list
+from glip.structures.image_list import to_image_list
 
 from ..backbone import build_backbone
 from ..rpn import build_rpn

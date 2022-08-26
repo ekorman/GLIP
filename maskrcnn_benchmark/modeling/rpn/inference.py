@@ -3,12 +3,12 @@ import logging
 
 import torch
 
-from maskrcnn_benchmark.modeling.box_coder import BoxCoder
-from maskrcnn_benchmark.structures.bounding_box import BoxList, _onnx_clip_boxes_to_image
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_nms
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_ml_nms
-from maskrcnn_benchmark.structures.boxlist_ops import remove_small_boxes
+from glip.modeling.box_coder import BoxCoder
+from glip.structures.bounding_box import BoxList, _onnx_clip_boxes_to_image
+from glip.structures.boxlist_ops import cat_boxlist
+from glip.structures.boxlist_ops import boxlist_nms
+from glip.structures.boxlist_ops import boxlist_ml_nms
+from glip.structures.boxlist_ops import remove_small_boxes
 
 from ..utils import permute_and_flatten
 import pdb

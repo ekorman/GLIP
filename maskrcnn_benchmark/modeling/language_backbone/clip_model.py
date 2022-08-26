@@ -6,7 +6,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
-from maskrcnn_benchmark.config import try_to_find
+from glip.config import try_to_find
 
 from timm.models.layers import DropPath, trunc_normal_
 

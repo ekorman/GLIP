@@ -11,8 +11,8 @@ except ImportError:
     from torch.utils.model_zoo import urlparse
     from torch.utils.model_zoo import HASH_REGEX
 
-from maskrcnn_benchmark.utils.comm import is_main_process
-from maskrcnn_benchmark.utils.comm import synchronize
+from glip.utils.comm import is_main_process
+from glip.utils.comm import synchronize
 
 
 # very similar to https://github.com/pytorch/pytorch/blob/master/torch/utils/model_zoo.py
@@ -32,7 +32,7 @@ def cache_url(url, model_dir='model', progress=True):
         model_dir (string, optional): directory in which to save the object
         progress (bool, optional): whether or not to display a progress bar to stderr
     Example:
-        >>> cached_file = maskrcnn_benchmark.utils.model_zoo.cache_url('https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth')
+        >>> cached_file = glip.utils.model_zoo.cache_url('https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth')
     """
     if model_dir is None:
         torch_home = os.path.expanduser(os.getenv("TORCH_HOME", "~/.torch"))

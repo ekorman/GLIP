@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 
-from maskrcnn_benchmark import _C
+from glip import _C
 
 
 # TODO: Use JIT to replace CUDA implementation in the future.

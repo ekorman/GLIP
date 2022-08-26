@@ -3,11 +3,11 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_nms
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
-from maskrcnn_benchmark.modeling.box_coder import BoxCoder
-from maskrcnn_benchmark.utils.amp import custom_fwd, custom_bwd
+from glip.structures.bounding_box import BoxList
+from glip.structures.boxlist_ops import boxlist_nms
+from glip.structures.boxlist_ops import cat_boxlist
+from glip.modeling.box_coder import BoxCoder
+from glip.utils.amp import custom_fwd, custom_bwd
 
 class PostProcessor(nn.Module):
     """

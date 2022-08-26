@@ -1,5 +1,5 @@
 import torch
-from maskrcnn_benchmark.config import cfg
+from glip.config import cfg
 
 # transpose
 FLIP_LEFT_RIGHT = 0

@@ -1,5 +1,5 @@
 import torch
-import maskrcnn_benchmark.utils.dist as dist
+import glip.utils.dist as dist
 
 
 def normalized_positive_map(positive_map):

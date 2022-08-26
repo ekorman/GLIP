@@ -2,15 +2,15 @@
 import torch
 from torch.nn import functional as F
 
-from maskrcnn_benchmark.layers import smooth_l1_loss
-from maskrcnn_benchmark.modeling.box_coder import BoxCoder
-from maskrcnn_benchmark.modeling.matcher import Matcher
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou
-from maskrcnn_benchmark.modeling.balanced_positive_negative_sampler import (
+from glip.layers import smooth_l1_loss
+from glip.modeling.box_coder import BoxCoder
+from glip.modeling.matcher import Matcher
+from glip.structures.boxlist_ops import boxlist_iou
+from glip.modeling.balanced_positive_negative_sampler import (
     BalancedPositiveNegativeSampler
 )
-from maskrcnn_benchmark.modeling.utils import cat
-from maskrcnn_benchmark.utils.amp import custom_fwd, custom_bwd
+from glip.modeling.utils import cat
+from glip.utils.amp import custom_fwd, custom_bwd
 
 class FastRCNNLossComputation(object):
     """

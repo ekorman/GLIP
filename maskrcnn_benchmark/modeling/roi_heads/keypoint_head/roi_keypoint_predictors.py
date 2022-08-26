@@ -1,7 +1,7 @@
 from torch import nn
 from torch.nn import functional as F
 
-from maskrcnn_benchmark import layers
+from glip import layers
 
 
 class KeypointRCNNPredictor(nn.Module):

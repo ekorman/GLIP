@@ -3,8 +3,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from maskrcnn_benchmark.modeling import registry
-from maskrcnn_benchmark.layers import Scale, DFConv2d
+from glip.modeling import registry
+from glip.layers import Scale, DFConv2d
 from .anchor_generator import make_center_anchor_generator
 from .inference import make_fcos_postprocessor
 

@@ -6,10 +6,10 @@ from torch import nn
 from .inference import make_atss_postprocessor
 from .anchor_generator import make_anchor_generator_complex
 
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
-from maskrcnn_benchmark.layers import Scale, DYReLU, SELayer, ModulatedDeformConv
-from maskrcnn_benchmark.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
-from maskrcnn_benchmark.modeling.backbone.fbnet import *
+from glip.structures.boxlist_ops import cat_boxlist
+from glip.layers import Scale, DYReLU, SELayer, ModulatedDeformConv
+from glip.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
+from glip.modeling.backbone.fbnet import *
 
 
 class h_sigmoid(nn.Module):

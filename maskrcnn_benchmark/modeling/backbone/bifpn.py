@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 
-from maskrcnn_benchmark.layers import swish
+from glip.layers import swish
 
 
 class BiFPN(nn.Module):

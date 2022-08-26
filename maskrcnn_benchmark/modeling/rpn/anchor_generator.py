@@ -5,9 +5,9 @@ import numpy as np
 import torch
 from torch import nn
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
-from maskrcnn_benchmark.structures.image_list import ImageList
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
+from glip.structures.bounding_box import BoxList
+from glip.structures.image_list import ImageList
+from glip.structures.boxlist_ops import cat_boxlist
 
 class BufferList(nn.Module):
     """

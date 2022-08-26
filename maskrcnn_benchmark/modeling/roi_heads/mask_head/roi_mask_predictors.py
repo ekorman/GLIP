@@ -3,8 +3,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from maskrcnn_benchmark.layers import Conv2d, _NewEmptyTensorOp
-from maskrcnn_benchmark.layers import ConvTranspose2d
+from glip.layers import Conv2d, _NewEmptyTensorOp
+from glip.layers import ConvTranspose2d
 from ...utils import permute_and_flatten
 
 

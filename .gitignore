@@ -9,7 +9,7 @@ MODEL/
 __pycache__
 _ext
 *.so
-maskrcnn_benchmark.egg-info/
+glip.egg-info/
 dist/
 
 # pytorch/python/numpy formats

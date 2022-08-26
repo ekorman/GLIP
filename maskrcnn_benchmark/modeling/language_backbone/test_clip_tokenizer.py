@@ -1,4 +1,4 @@
-from maskrcnn_benchmark.modeling.language_backbone import build_tokenizer
+from glip.modeling.language_backbone import build_tokenizer
 
 if __name__ == '__main__':
 

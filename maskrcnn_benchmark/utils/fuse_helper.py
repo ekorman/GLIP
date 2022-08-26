@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pdb
 import math
-from maskrcnn_benchmark.modeling.utils import cat, concat_box_prediction_layers, permute_and_flatten
+from glip.modeling.utils import cat, concat_box_prediction_layers, permute_and_flatten
 from timm.models.layers import DropPath
 
 from transformers.activations import ACT2FN

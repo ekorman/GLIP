@@ -4,9 +4,9 @@ from torch.nn import functional as F
 
 from .hourglass import Hourglass
 from ..box_head.roi_box_feature_extractors import ResNet50Conv5ROIFeatureExtractor
-from maskrcnn_benchmark.modeling.poolers import Pooler
-from maskrcnn_benchmark.layers import Conv2d
-from maskrcnn_benchmark.modeling.make_layers import make_conv3x3
+from glip.modeling.poolers import Pooler
+from glip.layers import Conv2d
+from glip.modeling.make_layers import make_conv3x3
 
 
 

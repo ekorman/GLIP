@@ -5,9 +5,9 @@ from torch.nn import init
 from torch.nn.modules.utils import _pair
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
-from maskrcnn_benchmark.utils.amp import custom_fwd, custom_bwd
+from glip.utils.amp import custom_fwd, custom_bwd
 
-from maskrcnn_benchmark import _C
+from glip import _C
 
 class DeformConvFunction(Function):
 

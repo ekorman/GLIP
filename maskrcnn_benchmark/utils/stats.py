@@ -13,7 +13,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from maskrcnn_benchmark.layers import *
+from glip.layers import *
 
 def get_model_complexity_info(model, input_res,
                               print_per_layer_stat=True,

@@ -1,6 +1,6 @@
 from torch import nn
 
-from maskrcnn_benchmark.modeling.make_layers import make_conv3x3
+from glip.modeling.make_layers import make_conv3x3
 
 
 class Residual(nn.Module):

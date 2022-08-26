@@ -5,14 +5,14 @@ from torch import nn
 from .inference import make_atss_postprocessor
 from .anchor_generator import make_anchor_generator_complex
 
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
-from maskrcnn_benchmark.layers import Scale, DYReLU, SELayer, ModulatedDeformConv
-from maskrcnn_benchmark.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
-from maskrcnn_benchmark.modeling.backbone.fbnet import *
+from glip.structures.boxlist_ops import cat_boxlist
+from glip.layers import Scale, DYReLU, SELayer, ModulatedDeformConv
+from glip.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
+from glip.modeling.backbone.fbnet import *
 
 from ..utils import permute_and_flatten
 
-from maskrcnn_benchmark.utils.fuse_helper import (
+from glip.utils.fuse_helper import (
     FeatureResizer,
     func_attention,
     _make_mlp,
@@ -34,7 +34,7 @@ from transformers.modeling_utils import apply_chunking_to_forward
 import torch.utils.checkpoint as checkpoint
 import pdb
 
-from maskrcnn_benchmark.modeling.language_backbone.clip_model import (
+from glip.modeling.language_backbone.clip_model import (
     QuickGELU,
     LayerNorm,
     DropPath,
@@ -288,7 +288,7 @@ class BertEncoderLayer(BertPreTrainedModel):
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
 
-        from maskrcnn_benchmark.modeling.rpn.modeling_bert import (
+        from glip.modeling.rpn.modeling_bert import (
             BertAttention,
             BertIntermediate,
             BertOutput,

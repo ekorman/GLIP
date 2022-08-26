@@ -3,7 +3,7 @@ import torch
 from torch import nn
 
 import torch.distributed as dist
-import maskrcnn_benchmark.utils.comm as comm
+import glip.utils.comm as comm
 from torch.autograd.function import Function
 
 class FrozenBatchNorm2d(nn.Module):

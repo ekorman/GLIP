@@ -5,8 +5,8 @@ from torch import nn
 
 from .inference import make_atss_postprocessor
 
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
-from maskrcnn_benchmark.layers import Scale, DFConv2d, DYReLU, SELayer
+from glip.structures.boxlist_ops import cat_boxlist
+from glip.layers import Scale, DFConv2d, DYReLU, SELayer
 from .anchor_generator import make_anchor_generator_complex
 
 

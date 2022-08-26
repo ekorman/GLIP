@@ -1,10 +1,10 @@
 from torch import nn
 from torch.nn import functional as F
 
-from maskrcnn_benchmark.modeling.poolers import Pooler
+from glip.modeling.poolers import Pooler
 
-from maskrcnn_benchmark.layers import Conv2d
-from maskrcnn_benchmark.layers import ConvTranspose2d
+from glip.layers import Conv2d
+from glip.layers import ConvTranspose2d
 
 
 class KeypointRCNNFeatureExtractor(nn.Module):

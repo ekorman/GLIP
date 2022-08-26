@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
-from maskrcnn_benchmark.utils.registry import Registry
+from glip.utils.registry import Registry
 
 BACKBONES = Registry()
 

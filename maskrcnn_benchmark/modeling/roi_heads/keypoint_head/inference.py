@@ -3,8 +3,8 @@ import numpy as np
 import torch
 from torch import nn
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
-from maskrcnn_benchmark.structures.keypoint import PersonKeypoints
+from glip.structures.bounding_box import BoxList
+from glip.structures.keypoint import PersonKeypoints
 
 
 class KeypointPostProcessor(nn.Module):

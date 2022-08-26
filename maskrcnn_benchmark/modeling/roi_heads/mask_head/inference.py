@@ -4,7 +4,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
+from glip.structures.bounding_box import BoxList
 
 
 def convert_mask_grounding_to_od_logits(logits, positive_map_label_to_token, num_classes):

@@ -2,8 +2,8 @@ import requests
 from io import BytesIO
 from PIL import Image
 import numpy as np
-from maskrcnn_benchmark.config import cfg
-from maskrcnn_benchmark.engine.predictor_glip import GLIPDemo
+from glip.config import cfg
+from glip.engine.predictor_glip import GLIPDemo
 
 
 def load(url):

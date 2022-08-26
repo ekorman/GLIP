@@ -12,9 +12,9 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 from torch.nn import BatchNorm2d, SyncBatchNorm
-from maskrcnn_benchmark.layers import Conv2d, interpolate
-from maskrcnn_benchmark.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
-from maskrcnn_benchmark.layers.misc import _NewEmptyTensorOp
+from glip.layers import Conv2d, interpolate
+from glip.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
+from glip.layers.misc import _NewEmptyTensorOp
 
 
 logger = logging.getLogger(__name__)

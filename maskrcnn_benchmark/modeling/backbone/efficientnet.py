@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from maskrcnn_benchmark.layers import SEBlock, swish
+from glip.layers import SEBlock, swish
 
 
 def round_channels(channels,

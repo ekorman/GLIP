@@ -7,9 +7,9 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from maskrcnn_benchmark.structures.image_list import to_image_list
-from maskrcnn_benchmark.structures.bounding_box import BoxList
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
+from glip.structures.image_list import to_image_list
+from glip.structures.bounding_box import BoxList
+from glip.structures.boxlist_ops import cat_boxlist
 
 from ..backbone import build_backbone
 from ..rpn import build_rpn
@@ -127,7 +127,7 @@ class GeneralizedVLRCNN(nn.Module):
         self.mlm_loss_for_only_positives = cfg.MODEL.DYHEAD.FUSE_CONFIG.MLM_LOSS_FOR_ONLY_POSITIVES
 
         if self.cfg.GLIPKNOW.KNOWLEDGE_FILE:
-            from maskrcnn_benchmark.data.datasets.tsv import load_from_yaml_file
+            from glip.data.datasets.tsv import load_from_yaml_file
             self.class_name_to_knowledge = load_from_yaml_file(self.cfg.GLIPKNOW.KNOWLEDGE_FILE)
             self.class_name_list = sorted([k for k in self.class_name_to_knowledge])
 

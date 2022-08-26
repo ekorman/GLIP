@@ -23,10 +23,10 @@ import torch.nn.functional as F
 from torch import nn
 from torch.nn import BatchNorm2d, SyncBatchNorm
 
-from maskrcnn_benchmark.layers import FrozenBatchNorm2d, NaiveSyncBatchNorm2d
-from maskrcnn_benchmark.layers import Conv2d, DFConv2d, SELayer
-from maskrcnn_benchmark.modeling.make_layers import group_norm
-from maskrcnn_benchmark.utils.registry import Registry
+from glip.layers import FrozenBatchNorm2d, NaiveSyncBatchNorm2d
+from glip.layers import Conv2d, DFConv2d, SELayer
+from glip.modeling.make_layers import group_norm
+from glip.utils.registry import Registry
 
 
 # ResNet stage specification

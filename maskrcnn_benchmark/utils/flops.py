@@ -4,12 +4,12 @@ import torch
 import torch.nn as nn
 import timeit
 
-from maskrcnn_benchmark.layers import *
-from maskrcnn_benchmark.modeling.backbone.resnet_big import StdConv2d
-from maskrcnn_benchmark.modeling.backbone.fpn import *
-from maskrcnn_benchmark.modeling.rpn.inference import *
-from maskrcnn_benchmark.modeling.roi_heads.box_head.inference import PostProcessor
-from maskrcnn_benchmark.modeling.rpn.anchor_generator import BufferList
+from glip.layers import *
+from glip.modeling.backbone.resnet_big import StdConv2d
+from glip.modeling.backbone.fpn import *
+from glip.modeling.rpn.inference import *
+from glip.modeling.roi_heads.box_head.inference import PostProcessor
+from glip.modeling.rpn.anchor_generator import BufferList
 
 
 def profile(model, input_size, custom_ops={}, device="cpu", verbose=False, extra_args={}, return_time=False):

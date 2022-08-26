@@ -4,8 +4,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from maskrcnn_benchmark.modeling import registry
-from maskrcnn_benchmark.modeling.box_coder import BoxCoder
+from glip.modeling import registry
+from glip.modeling.box_coder import BoxCoder
 from .anchor_generator import make_anchor_generator_complex
 from .inference import make_retina_postprocessor
 

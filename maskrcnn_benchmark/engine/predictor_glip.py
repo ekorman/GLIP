@@ -110,6 +110,9 @@ class GLIPDemo(object):
             original_image, class_labels, custom_entity
         )
         top_predictions = self._post_process(predictions, thresh)
+        print(f"top_predictions.bbox: {top_predictions.bbox}")
+        print(f"top_predictions.get_field('scores'): {top_predictions.get_field('scores')}")
+        print(f"top_predictions.get_field('labels'): {top_predictions.get_field('labels')}")
 
         result = original_image.copy()
         result = self.overlay_boxes(result, top_predictions)

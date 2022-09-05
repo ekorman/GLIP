@@ -73,7 +73,6 @@ setup(
         "einops",
         "timm",
         "yacs",
-        "ftfy",
         "transformers",
         "opencv-python",
     ],

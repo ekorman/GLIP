@@ -73,7 +73,6 @@ setup(
         "einops",
         "timm",
         "yacs",
-        "tensorboardX",
         "ftfy",
         "transformers",
         "opencv-python",

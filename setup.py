@@ -76,7 +76,7 @@ setup(
         "tensorboardX",
         "ftfy",
         "transformers",
-        "opencv-python",
+        "opencv-python==4.2.0.34",
         "pycocotools",
     ],
     ext_modules=get_extensions(),

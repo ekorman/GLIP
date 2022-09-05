@@ -19,7 +19,8 @@ RUN apt install -y build-essential
 COPY ./ /code
 WORKDIR /code
 
-RUN python3.8 setup.py build develop --user
+# RUN python3.8 setup.py build develop --user
+RUN pip3.8 install .
 RUN mkdir -p MODEL
 
 RUN wget https://penzhanwu2bbs.blob.core.windows.net/data/GLIPv1_Open/models/glip_tiny_model_o365_goldg_cc_sbu.pth -O MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth

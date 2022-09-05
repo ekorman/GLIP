@@ -12,7 +12,7 @@ RUN apt install -y python3.8 python3-pip python3.8-dev
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python3.8 get-pip.py
 
-RUN pip3.8 install torch==1.9.0 torchvision einops shapely timm yacs tensorboardX ftfy transformers
+RUN pip3.8 install torch==1.9.0
 
 RUN apt install -y build-essential
 
@@ -24,5 +24,4 @@ RUN mkdir -p MODEL
 
 RUN wget https://penzhanwu2bbs.blob.core.windows.net/data/GLIPv1_Open/models/glip_tiny_model_o365_goldg_cc_sbu.pth -O MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth
 
-RUN pip3.8 install opencv-python nltk inflect scipy pycocotools
 RUN apt-get install ffmpeg libsm6 libxext6  -y

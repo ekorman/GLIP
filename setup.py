@@ -11,8 +11,6 @@ from torch.utils.cpp_extension import CUDA_HOME
 from torch.utils.cpp_extension import CppExtension
 from torch.utils.cpp_extension import CUDAExtension
 
-requirements = ["torch", "torchvision"]
-
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -59,8 +57,33 @@ def get_extensions():
 setup(
     name="glip",
     description="object detection in pytorch",
-    packages=find_packages(exclude=("configs", "tests",)),
-    # install_requires=requirements,
+    packages=find_packages(
+        exclude=(
+            "configs",
+            "tests",
+        )
+    ),
+    install_requires=["torch==1.9.0", "torchvision"],
+    requires=[
+        "torch==1.9.0",
+        "torchvision",
+        "einops",
+        "shapely",
+        "timm",
+        "yacs",
+        "tensorboardX",
+        "ftfy",
+        "transformers",
+        "opencv-python",
+        "nltk",
+        "inflect",
+        "scipy",
+        "pycocotools",
+    ],
     ext_modules=get_extensions(),
-    cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension.with_options(use_ninja=False)},
+    cmdclass={
+        "build_ext": torch.utils.cpp_extension.BuildExtension.with_options(
+            use_ninja=False
+        )
+    },
 )

@@ -24,6 +24,5 @@ COPY ./ /code
 WORKDIR /code
 
 RUN python3.8 setup.py build develop --user
-# RUN pip3.8 install .
 
 RUN apt-get install ffmpeg libsm6 libxext6  -y

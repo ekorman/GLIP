@@ -20,7 +20,7 @@ def load(url):
 
 # Use this command for evaluate the GLPT-T model
 config_file = "configs/pretrain/glip_Swin_T_O365_GoldG.yaml"
-weight_file = "MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth"
+weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth"
 
 # Use this command to evaluate the GLPT-L model
 # ! wget https://penzhanwu2bbs.blob.core.windows.net/data/GLIPv1_Open/models/glip_large_model.pth -O MODEL/glip_large_model.pth

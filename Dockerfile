@@ -9,6 +9,8 @@ RUN apt install -y wget software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install -y python3.8 python3-pip python3.8-dev
 
+RUN wget https://penzhanwu2bbs.blob.core.windows.net/data/GLIPv1_Open/models/glip_tiny_model_o365_goldg_cc_sbu.pth -O MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth
+
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python3.8 get-pip.py
 
@@ -22,7 +24,5 @@ WORKDIR /code
 # RUN python3.8 setup.py build develop --user
 RUN pip3.8 install .
 RUN mkdir -p MODEL
-
-RUN wget https://penzhanwu2bbs.blob.core.windows.net/data/GLIPv1_Open/models/glip_tiny_model_o365_goldg_cc_sbu.pth -O MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth
 
 RUN apt-get install ffmpeg libsm6 libxext6  -y

@@ -66,8 +66,7 @@ setup(
             "tests",
         )
     ),
-    install_requires=["torch==1.9.0", "torchvision"],
-    requires=[
+    install_requires=[
         "torch==1.9.0",
         "torchvision",
         "einops",

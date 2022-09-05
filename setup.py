@@ -6,13 +6,16 @@ import os
 from setuptools import find_packages
 from setuptools import setup
 
-
-def get_extensions():
+try:
     import torch
     from torch.utils.cpp_extension import CUDA_HOME
     from torch.utils.cpp_extension import CppExtension
     from torch.utils.cpp_extension import CUDAExtension
+except ModuleNotFoundError:
+    raise RuntimeError("torch not found. Please install it before running setup.py")
 
+
+def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
     extensions_dir = os.path.join(this_dir, "glip", "csrc")
 
@@ -54,16 +57,6 @@ def get_extensions():
     return ext_modules
 
 
-def get_cmdclass():
-    import torch
-
-    return {
-        "build_ext": torch.utils.cpp_extension.BuildExtension.with_options(
-            use_ninja=False
-        )
-    }
-
-
 setup(
     name="glip",
     description="object detection in pytorch",
@@ -73,7 +66,6 @@ setup(
             "tests",
         )
     ),
-    setup_requires=["numpy", "torch==1.9.0"],
     install_requires=[
         "numpy",
         "torch==1.9.0",
@@ -88,5 +80,9 @@ setup(
         "pycocotools",
     ],
     ext_modules=get_extensions(),
-    cmdclass=get_cmdclass(),
+    cmdclass={
+        "build_ext": torch.utils.cpp_extension.BuildExtension.with_options(
+            use_ninja=False
+        )
+    },
 )

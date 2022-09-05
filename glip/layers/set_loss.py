@@ -3,7 +3,11 @@ import torch.nn.functional as F
 import torch.distributed as dist
 from torch import nn
 
-from scipy.optimize import linear_sum_assignment
+try:
+    from scipy.optimize import linear_sum_assignment
+# not needed for inference
+except ModuleNotFoundError:
+    linear_sum_assignment = None
 from torch.cuda.amp import custom_fwd, custom_bwd
 
 

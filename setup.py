@@ -77,7 +77,6 @@ setup(
         "ftfy",
         "transformers",
         "opencv-python",
-        "scipy",
         "pycocotools",
     ],
     ext_modules=get_extensions(),

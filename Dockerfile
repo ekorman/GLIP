@@ -19,6 +19,10 @@ RUN apt install -y build-essential
 COPY ./ /code
 WORKDIR /code
 
+
+# todo: move this up
+RUN pip3.8 install --upgrade pip
+
 RUN python3.8 setup.py build develop --user
 RUN mkdir -p MODEL
 

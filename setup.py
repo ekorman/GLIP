@@ -69,7 +69,7 @@ setup(
     install_requires=[
         "numpy",
         "torch==1.9.0",
-        "torchvision",
+        "torchvision==0.10.0",
         "einops",
         "timm",
         "yacs",

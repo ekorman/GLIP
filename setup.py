@@ -3,13 +3,16 @@
 
 import glob
 import os
-
-import torch
 from setuptools import find_packages
 from setuptools import setup
-from torch.utils.cpp_extension import CUDA_HOME
-from torch.utils.cpp_extension import CppExtension
-from torch.utils.cpp_extension import CUDAExtension
+
+try:
+    import torch
+    from torch.utils.cpp_extension import CUDA_HOME
+    from torch.utils.cpp_extension import CppExtension
+    from torch.utils.cpp_extension import CUDAExtension
+except ModuleNotFoundError:
+    raise RuntimeError("torch not found. Please install it before running setup.py")
 
 
 def get_extensions():

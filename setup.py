@@ -59,6 +59,7 @@ def get_extensions():
 
 setup(
     name="glip",
+    version="0.0.1"
     description="object detection in pytorch",
     packages=find_packages(
         exclude=(

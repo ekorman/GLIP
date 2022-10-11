@@ -36,6 +36,7 @@ response = requests.get(
     "http://farm4.staticflickr.com/3693/9472793441_b7822c00de_z.jpg"
 )
 img = Image.open(BytesIO(response.content)).convert("RGB")
+class_labels = ["person", "sofa", "remote"]
 top_predictions = glip_demo(img, class_labels, 0.5)
 print(f"call top_predictions.bbox: {top_predictions.bbox}")
 print(

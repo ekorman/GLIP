@@ -1,7 +1,6 @@
 import requests
 from io import BytesIO
 from PIL import Image
-import numpy as np
 from glip.config import cfg
 from glip.engine.predictor_glip import GLIPDemo
 
@@ -11,18 +10,6 @@ from glip.engine.predictor_glip import GLIPDemo
 #         [188.3125,  19.4669, 200.0233,  47.5475]])
 # top_predictions.get_field('scores'): tensor([0.7998, 0.7174, 0.5777, 0.5554])
 # top_predictions.get_field('labels'): tensor([2, 2, 3, 1])
-
-
-def load(url):
-    """
-    Given an url of an image, downloads the image and
-    returns a PIL image
-    """
-    response = requests.get(url)
-    pil_image = Image.open(BytesIO(response.content)).convert("RGB")
-    # convert to BGR format
-    image = np.array(pil_image)[:, :, [2, 1, 0]]
-    return image
 
 
 # Use this command for evaluate the GLPT-T model
@@ -44,10 +31,6 @@ cfg.merge_from_list(["MODEL.DEVICE", "cuda"])
 
 glip_demo = GLIPDemo(cfg, min_image_size=800, confidence_threshold=0.7)
 glip_demo.color = 255
-image = load("http://farm4.staticflickr.com/3693/9472793441_b7822c00de_z.jpg")
-class_labels = ["person", "sofa", "remote"]
-result, _ = glip_demo.run_on_web_image(image, class_labels, 0.5)
-Image.fromarray(result[:, :, [2, 1, 0]]).save("result.png")
 
 response = requests.get(
     "http://farm4.staticflickr.com/3693/9472793441_b7822c00de_z.jpg"

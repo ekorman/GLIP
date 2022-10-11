@@ -1,6 +1,7 @@
 import cv2
 import torch
 import numpy as np
+from PIL import Image
 from transformers import AutoTokenizer
 from torchvision import transforms as T
 from glip.modeling.detector import build_detection_model
@@ -99,20 +100,31 @@ class GLIPDemo(object):
                 )
         return tokenizer
 
+    def __call__(self, img: Image.Image, class_labels, thresh=0.5):
+        img = np.array(img)[:, :, [2, 1, 0]]
+        predictions = self.compute_prediction(img, class_labels)
+        top_predictions = self._post_process(predictions, thresh)
+
+        return top_predictions
+
     def run_on_web_image(
         self,
         original_image,
         class_labels,
         thresh=0.5,
-        custom_entity=None,
     ):
         predictions = self.compute_prediction(
-            original_image, class_labels, custom_entity
+            original_image,
+            class_labels,
         )
         top_predictions = self._post_process(predictions, thresh)
         print(f"top_predictions.bbox: {top_predictions.bbox}")
-        print(f"top_predictions.get_field('scores'): {top_predictions.get_field('scores')}")
-        print(f"top_predictions.get_field('labels'): {top_predictions.get_field('labels')}")
+        print(
+            f"top_predictions.get_field('scores'): {top_predictions.get_field('scores')}"
+        )
+        print(
+            f"top_predictions.get_field('labels'): {top_predictions.get_field('labels')}"
+        )
 
         result = original_image.copy()
         result = self.overlay_boxes(result, top_predictions)
@@ -121,7 +133,7 @@ class GLIPDemo(object):
             result = self.overlay_mask(result, top_predictions)
         return result, top_predictions
 
-    def compute_prediction(self, original_image, class_labels, custom_entity=None):
+    def compute_prediction(self, original_image, class_labels):
         # image
         image = self.transforms(original_image)
         image_list = to_image_list(image, self.cfg.DATALOADER.SIZE_DIVISIBILITY)

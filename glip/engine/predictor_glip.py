@@ -1,14 +1,13 @@
-import cv2
-import torch
 import numpy as np
 from PIL import Image
 from transformers import AutoTokenizer
+import torch
 from torchvision import transforms as T
+
 from glip.modeling.detector import build_detection_model
 from glip.utils.checkpoint import DetectronCheckpointer
 from glip.structures.image_list import to_image_list
 from glip.modeling.roi_heads.mask_head.inference import Masker
-from glip.utils import cv2_util
 
 
 import timeit
@@ -107,32 +106,6 @@ class GLIPDemo(object):
 
         return top_predictions
 
-    def run_on_web_image(
-        self,
-        original_image,
-        class_labels,
-        thresh=0.5,
-    ):
-        predictions = self.compute_prediction(
-            original_image,
-            class_labels,
-        )
-        top_predictions = self._post_process(predictions, thresh)
-        print(f"top_predictions.bbox: {top_predictions.bbox}")
-        print(
-            f"top_predictions.get_field('scores'): {top_predictions.get_field('scores')}"
-        )
-        print(
-            f"top_predictions.get_field('labels'): {top_predictions.get_field('labels')}"
-        )
-
-        result = original_image.copy()
-        result = self.overlay_boxes(result, top_predictions)
-        result = self.overlay_entity_names(result, top_predictions)
-        if self.cfg.MODEL.MASK_ON:
-            result = self.overlay_mask(result, top_predictions)
-        return result, top_predictions
-
     def compute_prediction(self, original_image, class_labels):
         # image
         image = self.transforms(original_image)
@@ -154,9 +127,6 @@ class GLIPDemo(object):
 
         tokenized = self.tokenizer([caption_string], return_tensors="pt")
 
-        print(tokens_positive)
-
-        print(f"tokenized: {tokenized}, tokens_positive: {tokens_positive}")
         positive_map = create_positive_map(tokenized, tokens_positive)
 
         if self.cfg.MODEL.RPN_ARCHITECTURE == "VLDYHEAD":
@@ -181,8 +151,7 @@ class GLIPDemo(object):
                 positive_map=positive_map_label_to_token,
             )
             predictions = [o.to(self.cpu_device) for o in predictions]
-        print("inference time per image: {}".format(timeit.time.perf_counter() - tic))
-
+       
         # always single image is passed at a time
         prediction = predictions[0]
 
@@ -218,135 +187,6 @@ class GLIPDemo(object):
         _, idx = scores.sort(0, descending=True)
         return predictions[idx]
 
-    def compute_colors_for_labels(self, labels):
-        """
-        Simple function that adds fixed colors depending on the class
-        """
-        colors = (30 * (labels[:, None] - 1) + 1) * self.palette
-        colors = (colors % 255).numpy().astype("uint8")
-        try:
-            colors = (colors * 0 + self.color).astype("uint8")
-        except:
-            pass
-        return colors
-
-    def overlay_boxes(self, image, predictions, alpha=0.5, box_pixel=3):
-        labels = predictions.get_field("labels")
-        boxes = predictions.bbox
-
-        colors = self.compute_colors_for_labels(labels).tolist()
-        new_image = image.copy()
-        for box, color in zip(boxes, colors):
-            box = box.to(torch.int64)
-            top_left, bottom_right = box[:2].tolist(), box[2:].tolist()
-            new_image = cv2.rectangle(
-                new_image, tuple(top_left), tuple(bottom_right), tuple(color), box_pixel
-            )
-
-        # Following line overlays transparent rectangle over the image
-        image = cv2.addWeighted(new_image, alpha, image, 1 - alpha, 0)
-
-        return image
-
-    def overlay_scores(self, image, predictions):
-        scores = predictions.get_field("scores")
-        boxes = predictions.bbox
-
-        for box, score in zip(boxes, scores):
-            box = box.to(torch.int64)
-            image = cv2.putText(
-                image,
-                "%.3f" % score,
-                (int(box[0]), int((box[1] + box[3]) / 2)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1.0,
-                (255, 255, 255),
-                2,
-                cv2.LINE_AA,
-            )
-
-        return image
-
-    def overlay_entity_names(
-        self,
-        image,
-        predictions,
-        names=None,
-        text_size=1.0,
-        text_pixel=2,
-        text_offset=10,
-        text_offset_original=4,
-    ):
-        scores = predictions.get_field("scores").tolist()
-        labels = predictions.get_field("labels").tolist()
-        new_labels = []
-        if self.cfg.MODEL.RPN_ARCHITECTURE == "VLDYHEAD":
-            plus = 1
-        else:
-            plus = 0
-        self.plus = plus
-        if self.entities and self.plus:
-            for i in labels:
-                if i <= len(self.entities):
-                    new_labels.append(self.entities[i - self.plus])
-                else:
-                    new_labels.append("object")
-            # labels = [self.entities[i - self.plus] for i in labels ]
-        else:
-            new_labels = ["object" for i in labels]
-        boxes = predictions.bbox
-
-        template = "{}:{:.2f}"
-        previous_locations = []
-        for box, score, label in zip(boxes, scores, new_labels):
-            x, y = box[:2]
-            s = (
-                template.format(label, score)
-                .replace("_", " ")
-                .replace("(", "")
-                .replace(")", "")
-            )
-            for x_prev, y_prev in previous_locations:
-                if abs(x - x_prev) < abs(text_offset) and abs(y - y_prev) < abs(
-                    text_offset
-                ):
-                    y -= text_offset
-
-            cv2.putText(
-                image,
-                s,
-                (int(x), int(y) - text_offset_original),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                text_size,
-                (self.color, self.color, self.color),
-                text_pixel,
-                cv2.LINE_AA,
-            )
-            previous_locations.append((int(x), int(y)))
-
-        return image
-
-    def overlay_mask(self, image, predictions):
-        masks = predictions.get_field("mask").numpy()
-        labels = predictions.get_field("labels")
-
-        colors = self.compute_colors_for_labels(labels).tolist()
-
-        # import pdb
-        # pdb.set_trace()
-        # masks = masks > 0.1
-
-        for mask, color in zip(masks, colors):
-            thresh = mask[0, :, :, None].astype(np.uint8)
-            contours, hierarchy = cv2_util.findContours(
-                thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-            )
-            image = cv2.drawContours(image, contours, -1, color, 2)
-
-        composite = image
-
-        return composite
-
 
 def create_positive_map_label_to_token_from_positive_map(positive_map, plus=0):
     positive_map_label_to_token = {}
@@ -367,9 +207,6 @@ def create_positive_map(tokenized, tokens_positive):
                 beg_pos = tokenized.char_to_token(beg)
                 end_pos = tokenized.char_to_token(end - 1)
             except Exception as e:
-                print("beg:", beg, "end:", end)
-                print("token_positive:", tokens_positive)
-                # print("beg_pos:", beg_pos, "end_pos:", end_pos)
                 raise e
             if beg_pos is None:
                 try:

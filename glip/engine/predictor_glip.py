@@ -10,31 +10,26 @@ from glip.structures.image_list import to_image_list
 from glip.modeling.roi_heads.mask_head.inference import Masker
 
 
-import timeit
-
-
-class GLIPDemo(object):
+class GLIP(object):
     def __init__(
         self,
         cfg,
         confidence_threshold=0.7,
         min_image_size=None,
-        masks_per_dim=5,
-        load_model=True,
     ):
         self.cfg = cfg.clone()
-        if load_model:
-            self.model = build_detection_model(cfg)
-            self.model.eval()
-            self.device = torch.device(cfg.MODEL.DEVICE)
-            self.model.to(self.device)
+
+        self.model = build_detection_model(cfg)
+        self.model.eval()
+        self.device = torch.device(cfg.MODEL.DEVICE)
+        self.model.to(self.device)
+
         self.min_image_size = min_image_size
-        self.masks_per_dim = masks_per_dim
 
         save_dir = cfg.OUTPUT_DIR
-        if load_model:
-            checkpointer = DetectronCheckpointer(cfg, self.model, save_dir=save_dir)
-            _ = checkpointer.load(cfg.MODEL.WEIGHT)
+
+        checkpointer = DetectronCheckpointer(cfg, self.model, save_dir=save_dir)
+        _ = checkpointer.load(cfg.MODEL.WEIGHT)
 
         self.transforms = self.build_transform()
 
@@ -141,7 +136,6 @@ class GLIPDemo(object):
         )
         self.plus = plus
         self.positive_map_label_to_token = positive_map_label_to_token
-        tic = timeit.time.perf_counter()
 
         # compute predictions
         with torch.no_grad():
@@ -151,7 +145,7 @@ class GLIPDemo(object):
                 positive_map=positive_map_label_to_token,
             )
             predictions = [o.to(self.cpu_device) for o in predictions]
-       
+
         # always single image is passed at a time
         prediction = predictions[0]
 

@@ -2,7 +2,7 @@ import requests
 from io import BytesIO
 from PIL import Image
 from glip.config import cfg
-from glip.engine.predictor_glip import GLIPDemo
+from glip.engine.predictor_glip import GLIP
 
 # top_predictions.bbox: tensor([[337.5107, 205.8404, 600.7050, 364.8850],
 #         [317.8773, 289.4856, 639.3996, 477.6625],
@@ -23,13 +23,22 @@ weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu.pth"
 
 # update the config options with the config file
 # manual override some options
+from yacs.config import CfgNode as CN
+
+
 cfg.local_rank = 0
 cfg.num_gpus = 1
 cfg.merge_from_file(config_file)
 cfg.merge_from_list(["MODEL.WEIGHT", weight_file])
 cfg.merge_from_list(["MODEL.DEVICE", "cuda"])
 
-glip_demo = GLIPDemo(cfg, min_image_size=800, confidence_threshold=0.7)
+import pdb
+
+pdb.set_trace()
+
+cfg = CN.load_cfg(cfg.dump())
+
+glip_demo = GLIP(cfg, min_image_size=800, confidence_threshold=0.7)
 glip_demo.color = 255
 
 response = requests.get(

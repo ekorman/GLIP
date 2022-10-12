@@ -7,6 +7,7 @@ from torchvision import transforms as T
 from glip.modeling.detector import build_detection_model
 from glip.structures.image_list import to_image_list
 from glip.modeling.roi_heads.mask_head.inference import Masker
+from glip.utils.model_serialization import load_state_dict
 
 
 class GLIP(object):
@@ -27,7 +28,7 @@ class GLIP(object):
 
         self.min_image_size = min_image_size
 
-        self.model.load_state_dict(torch.load(model_weight_path))
+        load_state_dict(self.model, torch.load(model_weight_path))
 
         self.transforms = self.build_transform()
 

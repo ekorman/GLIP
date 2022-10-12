@@ -5,7 +5,6 @@ import torch
 from torchvision import transforms as T
 
 from glip.modeling.detector import build_detection_model
-from glip.utils.checkpoint import DetectronCheckpointer
 from glip.structures.image_list import to_image_list
 from glip.modeling.roi_heads.mask_head.inference import Masker
 
@@ -14,22 +13,21 @@ class GLIP(object):
     def __init__(
         self,
         cfg,
+        device: torch.device,
+        model_weight_path: str,
         confidence_threshold=0.7,
         min_image_size=None,
     ):
-        self.cfg = cfg.clone()
 
+        self.cfg = cfg
         self.model = build_detection_model(cfg)
         self.model.eval()
-        self.device = torch.device(cfg.MODEL.DEVICE)
+        self.device = device
         self.model.to(self.device)
 
         self.min_image_size = min_image_size
 
-        save_dir = cfg.OUTPUT_DIR
-
-        checkpointer = DetectronCheckpointer(cfg, self.model, save_dir=save_dir)
-        _ = checkpointer.load(cfg.MODEL.WEIGHT)
+        self.model.load_state_dict(torch.load(model_weight_path))
 
         self.transforms = self.build_transform()
 
@@ -46,16 +44,10 @@ class GLIP(object):
         """
         Creates a basic transformation that was used to train the models
         """
+
         cfg = self.cfg
 
-        # we are loading images with OpenCV, so we don't need to convert them
-        # to BGR, they are already! So all we need to do is to normalize
-        # by 255 if we want to convert to BGR255 format, or flip the channels
-        # if we want it to be in RGB in [0-1] range.
-        if cfg.INPUT.TO_BGR255:
-            to_bgr_transform = T.Lambda(lambda x: x * 255)
-        else:
-            to_bgr_transform = T.Lambda(lambda x: x[[2, 1, 0]])
+        to_bgr_transform = T.Lambda(lambda x: x * 255)
 
         normalize_transform = T.Normalize(
             mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD

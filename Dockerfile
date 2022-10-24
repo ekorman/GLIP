@@ -33,4 +33,6 @@ RUN python3.8 setup.py build develop --user
 # RUN pip3.8 install -v .
 
 COPY ./test.py /
-RUN python3.8 test.py
+
+WORKDIR /
+CMD python3.8 test.py

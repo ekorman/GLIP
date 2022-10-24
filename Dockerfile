@@ -27,7 +27,7 @@ RUN apt-get install ffmpeg libsm6 libxext6  -y
 COPY ./glip /code/glip
 COPY ./setup.py /code/setup.py
 
-WORKDIR /
+WORKDIR /code
 
 RUN python3.8 setup.py build develop --user
 # RUN pip3.8 install -v .

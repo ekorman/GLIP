@@ -23,7 +23,6 @@ weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu_model_only.pth"
 # weight_file = "MODEL/glip_large_model.pth"
 
 cfg = make_glip_t_cfg()
-weight_file = "glip_tiny_model_o365_goldg_cc_sbu_model_only.pth"
 
 glip_demo = GLIP(
     cfg,

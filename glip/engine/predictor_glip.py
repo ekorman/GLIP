@@ -304,4 +304,36 @@ def make_glip_l_cfg() -> CfgNode:
     glip_l_cfg.MODEL.RPN.ASPECT_RATIOS = (1.0,)
     glip_l_cfg.MODEL.RPN.SCALES_PER_OCTAVE = 1
 
+    glip_l_cfg.MODEL.DYHEAD.CHANNELS = 256
+    glip_l_cfg.MODEL.DYHEAD.NUM_CONVS = 8
+    glip_l_cfg.MODEL.DYHEAD.USE_GN = True
+    glip_l_cfg.MODEL.DYHEAD.USE_DYRELU = True
+    glip_l_cfg.MODEL.DYHEAD.USE_DFCONV = True
+    glip_l_cfg.MODEL.DYHEAD.USE_DYFUSE = True
+    glip_l_cfg.MODEL.DYHEAD.TOPK = (
+        9  # topk for selecting candidate positive samples from each level
+    )
+    glip_l_cfg.MODEL.DYHEAD.SCORE_AGG = "MEAN"
+    glip_l_cfg.MODEL.DYHEAD.LOG_SCALE = 0.0
+
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_FUSED_FEATURES_DOT_PRODUCT = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.EARLY_FUSE_ON = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.TYPE = "MHA-B"
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CLASSIFICATION_LOSS = False
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_TOKEN_LOSS = False
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CONTRASTIVE_ALIGN_LOSS = False
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.CONTRASTIVE_HIDDEN_DIM = 64
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_DOT_PRODUCT_TOKEN_LOSS = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_LAYER_SCALE = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_MIN_FOR_UNDERFLOW = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_MAX_FOR_OVERFLOW = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_BERTATTN_MIN_FOR_UNDERFLOW = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_BERTATTN_MAX_FOR_OVERFLOW = True
+    glip_l_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_DOT_PRODUCT = True
+
+    glip_l_cfg.INPUT.PIXEL_MEAN = [103.530, 116.280, 123.675]
+    glip_l_cfg.INPUT.PIXEL_STD = [57.375, 57.120, 58.395]
+
+    glip_l_cfg.DATALOADER.SIZE_DIVISIBILITY = 32
+
     return glip_l_cfg

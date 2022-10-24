@@ -3,7 +3,9 @@ from PIL import Image
 from transformers import AutoTokenizer
 import torch
 from torchvision import transforms as T
+from yacs.config import CfgNode
 
+from glip.config import cfg
 from glip.modeling.detector import build_detection_model
 from glip.structures.image_list import to_image_list
 from glip.modeling.roi_heads.mask_head.inference import Masker
@@ -19,7 +21,6 @@ class GLIP(object):
         confidence_threshold=0.7,
         min_image_size=None,
     ):
-
         self.cfg = cfg
         self.model = build_detection_model(cfg)
         self.model.eval()
@@ -215,3 +216,92 @@ def create_positive_map(tokenized, tokens_positive):
             assert beg_pos is not None and end_pos is not None
             positive_map[j, beg_pos : end_pos + 1].fill_(1)
     return positive_map / (positive_map.sum(-1)[:, None] + 1e-6)
+
+
+def make_glip_t_cfg() -> CfgNode:
+    glip_t_cfg = cfg.clone()
+
+    glip_t_cfg.MODEL.META_ARCHITECTURE = "GeneralizedVLRCNN"
+    glip_t_cfg.MODEL.RPN_ONLY = True
+    glip_t_cfg.MODEL.RPN_ARCHITECTURE = "VLDYHEAD"
+
+    glip_t_cfg.MODEL.BACKBONE.CONV_BODY = "SWINT-FPN-RETINANET"
+    glip_t_cfg.MODEL.BACKBONE.OUT_CHANNELS = 256
+    glip_t_cfg.MODEL.BACKBONE.FREEZE_CONV_BODY_AT = -1
+
+    glip_t_cfg.MODEL.LANGUAGE_BACKBONE.FREEZE = False
+    glip_t_cfg.MODEL.LANGUAGE_BACKBONE.MODEL_TYPE = "bert-base-uncased"
+    glip_t_cfg.MODEL.LANGUAGE_BACKBONE.MASK_SPECIAL = False
+
+    glip_t_cfg.MODEL.RPN.USE_FPN = True
+    glip_t_cfg.MODEL.RPN.ANCHOR_SIZES = (64, 128, 256, 512, 1024)
+    glip_t_cfg.MODEL.RPN.ANCHOR_STRIDE = (8, 16, 32, 64, 128)
+    glip_t_cfg.MODEL.RPN.ASPECT_RATIOS = (1.0,)
+    glip_t_cfg.MODEL.RPN.SCALES_PER_OCTAVE = 1
+
+    glip_t_cfg.MODEL.DYHEAD.CHANNELS = 256
+    glip_t_cfg.MODEL.DYHEAD.NUM_CONVS = 6
+    glip_t_cfg.MODEL.DYHEAD.USE_GN = True
+    glip_t_cfg.MODEL.DYHEAD.USE_DYRELU = True
+    glip_t_cfg.MODEL.DYHEAD.USE_DFCONV = True
+    glip_t_cfg.MODEL.DYHEAD.USE_DYFUSE = True
+    glip_t_cfg.MODEL.DYHEAD.TOPK = (
+        9  # topk for selecting candidate positive samples from each level
+    )
+    glip_t_cfg.MODEL.DYHEAD.SCORE_AGG = "MEAN"
+    glip_t_cfg.MODEL.DYHEAD.LOG_SCALE = 0.0
+
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.EARLY_FUSE_ON = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.TYPE = "MHA-B"
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CLASSIFICATION_LOSS = False
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_TOKEN_LOSS = False
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CONTRASTIVE_ALIGN_LOSS = False
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.CONTRASTIVE_HIDDEN_DIM = 64
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_DOT_PRODUCT_TOKEN_LOSS = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_FUSED_FEATURES_DOT_PRODUCT = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_LAYER_SCALE = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_MIN_FOR_UNDERFLOW = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_MAX_FOR_OVERFLOW = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_BERTATTN_MIN_FOR_UNDERFLOW = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_BERTATTN_MAX_FOR_OVERFLOW = True
+    glip_t_cfg.MODEL.DYHEAD.FUSE_CONFIG.CLAMP_DOT_PRODUCT = True
+
+    glip_t_cfg.MODEL.DYHEAD.USE_CHECKPOINT = True
+
+    glip_t_cfg.INPUT.PIXEL_MEAN = [103.530, 116.280, 123.675]
+    glip_t_cfg.INPUT.PIXEL_STD = [57.375, 57.120, 58.395]
+
+    glip_t_cfg.DATALOADER.SIZE_DIVISIBILITY = 32
+
+    return glip_t_cfg
+
+
+def make_glip_l_cfg() -> CfgNode:
+    glip_l_cfg = cfg.clone()
+
+    glip_l_cfg.MODEL.META_ARCHITECTURE = "GeneralizedVLRCNN"
+    # glip_l_cfg.MODEL.WEIGHT = "swin_large_patch4_window12_384_22k.pth"
+    glip_l_cfg.MODEL.RPN_ONLY = True
+    glip_l_cfg.MODEL.RPN_ARCHITECTURE = "VLDYHEAD"
+
+    glip_l_cfg.MODEL.BACKBONE.CONV_BODY = "SWINT-FPN-RETINANET"
+    glip_l_cfg.MODEL.BACKBONE.OUT_CHANNELS = 256
+
+    glip_l_cfg.MODEL.SWINT.EMBED_DIM = 192
+    glip_l_cfg.MODEL.SWINT.DEPTHS = (2, 2, 18, 2)
+    glip_l_cfg.MODEL.SWINT.NUM_HEADS = (6, 12, 24, 48)
+    glip_l_cfg.MODEL.SWINT.WINDOW_SIZE = 12
+    glip_l_cfg.MODEL.SWINT.OUT_CHANNELS = (192, 384, 768, 1536)
+    glip_l_cfg.MODEL.SWINT.DROP_PATH_RATE = 0.4
+
+    glip_l_cfg.MODEL.LANGUAGE_BACKBONE.FREEZE = False
+    glip_l_cfg.MODEL.LANGUAGE_BACKBONE.MODEL_TYPE = "bert-base-uncased"
+    glip_l_cfg.MODEL.LANGUAGE_BACKBONE.MASK_SPECIAL = False
+
+    glip_l_cfg.MODEL.RPN.USE_FPN = True
+    glip_l_cfg.MODEL.RPN.ANCHOR_SIZES = (64, 128, 256, 512, 1024)
+    glip_l_cfg.MODEL.RPN.ANCHOR_STRIDE = (8, 16, 32, 64, 128)
+    glip_l_cfg.MODEL.RPN.ASPECT_RATIOS = (1.0,)
+    glip_l_cfg.MODEL.RPN.SCALES_PER_OCTAVE = 1
+
+    return glip_l_cfg

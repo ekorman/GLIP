@@ -91,13 +91,15 @@ class GLIP(object):
 
     def __call__(self, imgs: List[Image.Image], class_labels, thresh=0.5) -> BoxList:
         predictions = self.compute_predictions(imgs, class_labels)
-        top_predictions = [self._post_process(prediction, thresh) for prediction in predictions]
+        top_predictions = [
+            self._post_process(prediction, thresh) for prediction in predictions
+        ]
         return top_predictions
 
     def compute_predictions(self, imgs: List[Image.Image], class_labels):
         # image
-        img_tensor = torch.stack([self.transforms(img) for img in imgs])
-        image_list = to_image_list(img_tensor, self.cfg.DATALOADER.SIZE_DIVISIBILITY)
+        img_tensors = [self.transforms(img) for img in imgs]
+        image_list = to_image_list(img_tensors, self.cfg.DATALOADER.SIZE_DIVISIBILITY)
         image_list = image_list.to(self.device)
         # caption
         self.entities = class_labels
@@ -139,8 +141,11 @@ class GLIP(object):
             )
             predictions = [o.to(self.cpu_device) for o in predictions]
 
-        predictions = [prediction.resize((img.height, img.width)) for prediction, img in zip(imgs, predictions)]
-        
+        predictions = [
+            prediction.resize((img.height, img.width))
+            for prediction, img in zip(predictions, imgs)
+        ]
+
         return predictions
 
     def _post_process(self, predictions, threshold=0.5):

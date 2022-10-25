@@ -34,10 +34,12 @@ response = requests.get(
 img = Image.open(BytesIO(response.content)).convert("RGB")
 class_labels = ["person", "sofa", "remote"]
 top_predictions = glip_demo([img], class_labels, 0.5)
-print(f"call top_predictions.bbox: {top_predictions.bbox}")
-print(
-    f"call top_predictions.get_field('scores'): {top_predictions.get_field('scores')}"
-)
-print(
-    f"call top_predictions.get_field('labels'): {top_predictions.get_field('labels')}"
-)
+
+for i, top_prediction in enumerate(top_predictions):
+    print(f"call top_predictions[{i}].bbox: {top_prediction.bbox}")
+    print(
+        f"call top_predictions[{i}].get_field('scores'): {top_prediction.get_field('scores')}"
+    )
+    print(
+        f"call top_predictions[{i}].get_field('labels'): {top_prediction.get_field('labels')}"
+    )

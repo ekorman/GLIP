@@ -7,6 +7,7 @@ from yacs.config import CfgNode
 
 from glip.config import cfg
 from glip.modeling.detector import build_detection_model
+from glip.structures.bounding_box import BoxList
 from glip.structures.image_list import to_image_list
 from glip.modeling.roi_heads.mask_head.inference import Masker
 from glip.utils.model_serialization import load_state_dict
@@ -88,7 +89,7 @@ class GLIP(object):
                 )
         return tokenizer
 
-    def __call__(self, img: Image.Image, class_labels, thresh=0.5):
+    def __call__(self, img: Image.Image, class_labels, thresh=0.5) -> BoxList:
         img = np.array(img)[:, :, [2, 1, 0]]
         predictions = self.compute_prediction(img, class_labels)
         top_predictions = self._post_process(predictions, thresh)

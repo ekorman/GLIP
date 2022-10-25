@@ -50,7 +50,7 @@ class GLIP(object):
 
         cfg = self.cfg
 
-        to_bgr_transform = T.Lambda(lambda x: x * 255)
+        to_bgr_transform = T.Lambda(lambda x: (x * 255)[[2, 1, 0], :, :])
 
         normalize_transform = T.Normalize(
             mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD
@@ -58,7 +58,6 @@ class GLIP(object):
 
         transform = T.Compose(
             [
-                T.ToPILImage(),
                 T.Resize(self.min_image_size)
                 if self.min_image_size is not None
                 else lambda x: x,
@@ -93,7 +92,6 @@ class GLIP(object):
         img = np.array(img)[:, :, [2, 1, 0]]
         predictions = self.compute_prediction(img, class_labels)
         top_predictions = self._post_process(predictions, thresh)
-
         return top_predictions
 
     def compute_prediction(self, original_image, class_labels):
@@ -145,7 +143,7 @@ class GLIP(object):
         prediction = predictions[0]
 
         # reshape prediction (a BoxList) into the original image size
-        height, width = original_image.shape[:-1]
+        height, width = original_image.height, original_image.width
         prediction = prediction.resize((width, height))
 
         if prediction.has_field("mask"):

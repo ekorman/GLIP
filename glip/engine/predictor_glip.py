@@ -142,7 +142,7 @@ class GLIP(object):
             predictions = [o.to(self.cpu_device) for o in predictions]
 
         predictions = [
-            prediction.resize((img.height, img.width))
+            prediction.resize((img.width, img.height))
             for prediction, img in zip(predictions, imgs)
         ]
 

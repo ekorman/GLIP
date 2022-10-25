@@ -15,10 +15,10 @@ import torch
 
 
 # Use this command for evaluate the GLPT-T model
-weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu_model_only.pth"
+weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu_model_only.pth"  # "MODEL/glip_large_model_model_only.pth"
 
 
-cfg = make_glip_t_cfg()
+cfg = make_glip_t_cfg() # make_glip_l_cfg
 
 glip_demo = GLIP(
     cfg,

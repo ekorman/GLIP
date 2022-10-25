@@ -1,4 +1,5 @@
-import numpy as np
+from typing import List
+
 from PIL import Image
 from transformers import AutoTokenizer
 import torch
@@ -88,15 +89,15 @@ class GLIP(object):
                 )
         return tokenizer
 
-    def __call__(self, img: Image.Image, class_labels, thresh=0.5) -> BoxList:
-        predictions = self.compute_prediction(img, class_labels)
-        top_predictions = self._post_process(predictions, thresh)
+    def __call__(self, imgs: List[Image.Image], class_labels, thresh=0.5) -> BoxList:
+        predictions = self.compute_predictions(imgs, class_labels)
+        top_predictions = [self._post_process(prediction, thresh) for prediction in predictions]
         return top_predictions
 
-    def compute_prediction(self, original_image, class_labels):
+    def compute_predictions(self, imgs: List[Image.Image], class_labels):
         # image
-        image = self.transforms(original_image)
-        image_list = to_image_list(image, self.cfg.DATALOADER.SIZE_DIVISIBILITY)
+        img_tensor = torch.stack([self.transforms(img) for img in imgs])
+        image_list = to_image_list(img_tensor, self.cfg.DATALOADER.SIZE_DIVISIBILITY)
         image_list = image_list.to(self.device)
         # caption
         self.entities = class_labels
@@ -138,22 +139,9 @@ class GLIP(object):
             )
             predictions = [o.to(self.cpu_device) for o in predictions]
 
-        # always single image is passed at a time
-        prediction = predictions[0]
-
-        # reshape prediction (a BoxList) into the original image size
-        height, width = original_image.height, original_image.width
-        prediction = prediction.resize((width, height))
-
-        if prediction.has_field("mask"):
-            # if we have masks, paste the masks in the right position
-            # in the image, as defined by the bounding boxes
-            masks = prediction.get_field("mask")
-            # always single image is passed at a time
-            masks = self.masker([masks], [prediction])[0]
-            prediction.add_field("mask", masks)
-
-        return prediction
+        predictions = [prediction.resize((img.height, img.width)) for prediction, img in zip(imgs, predictions)]
+        
+        return predictions
 
     def _post_process(self, predictions, threshold=0.5):
         scores = predictions.get_field("scores")

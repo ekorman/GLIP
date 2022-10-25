@@ -18,7 +18,7 @@ import torch
 weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu_model_only.pth"  # "MODEL/glip_large_model_model_only.pth"
 
 
-cfg = make_glip_t_cfg() # make_glip_l_cfg
+cfg = make_glip_t_cfg()  # make_glip_l_cfg
 
 glip_demo = GLIP(
     cfg,
@@ -33,7 +33,7 @@ response = requests.get(
 )
 img = Image.open(BytesIO(response.content)).convert("RGB")
 class_labels = ["person", "sofa", "remote"]
-top_predictions = glip_demo(img, class_labels, 0.5)
+top_predictions = glip_demo([img], class_labels, 0.5)
 print(f"call top_predictions.bbox: {top_predictions.bbox}")
 print(
     f"call top_predictions.get_field('scores'): {top_predictions.get_field('scores')}"

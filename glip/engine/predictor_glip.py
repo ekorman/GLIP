@@ -89,7 +89,6 @@ class GLIP(object):
         return tokenizer
 
     def __call__(self, img: Image.Image, class_labels, thresh=0.5) -> BoxList:
-        img = np.array(img)[:, :, [2, 1, 0]]
         predictions = self.compute_prediction(img, class_labels)
         top_predictions = self._post_process(predictions, thresh)
         return top_predictions

@@ -17,10 +17,6 @@ import torch
 # Use this command for evaluate the GLPT-T model
 weight_file = "/MODEL/glip_tiny_model_o365_goldg_cc_sbu_model_only.pth"
 
-# Use this command to evaluate the GLPT-L model
-# ! wget https://penzhanwu2bbs.blob.core.windows.net/data/GLIPv1_Open/models/glip_large_model.pth -O MODEL/glip_large_model.pth
-# config_file = "configs/pretrain/glip_Swin_L.yaml"
-# weight_file = "MODEL/glip_large_model.pth"
 
 cfg = make_glip_t_cfg()
 

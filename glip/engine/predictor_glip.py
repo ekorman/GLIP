@@ -136,7 +136,7 @@ class GLIP(object):
         with torch.no_grad():
             predictions = self.model(
                 image_list,
-                captions=[caption_string],
+                captions=[caption_string] * len(imgs),
                 positive_map=positive_map_label_to_token,
             )
             predictions = [o.to(self.cpu_device) for o in predictions]

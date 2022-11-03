@@ -9,4 +9,4 @@ build-wheel : build-docker
 	docker run -it -v ${PWD}/dist:/code/dist ${DOCKER_IMAGE_NAME} python3.8 setup.py bdist_wheel
 
 publish-docker : build-docker
-	docker push ghcr.io/ekorman/glip ${DOCKER_IMAGE_NAME}
+	docker push ${DOCKER_IMAGE_NAME}

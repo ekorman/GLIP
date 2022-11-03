@@ -577,8 +577,6 @@ class SwinTransformer(nn.Module):
                  lang_dim=None):
         super(SwinTransformer, self).__init__()
 
-        print("VISION BACKBONE USE GRADIENT CHECKPOINTING: ", use_checkpoint)
-
         self.pretrain_img_size = pretrain_img_size
         self.num_layers = len(depths)
         self.embed_dim = embed_dim

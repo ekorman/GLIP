@@ -335,6 +335,7 @@ def make_glip_t(
         min_image_size=min_image_size,
     )
 
+
 def make_glip_l(
     device: torch.device, model_weight_path: str, min_image_size: int = None
 ) -> GLIP:

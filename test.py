@@ -25,7 +25,6 @@ glip_demo = GLIP(
     device=torch.device("cuda"),
     model_weight_path=weight_file,
     min_image_size=800,
-    confidence_threshold=0.7,
 )
 
 response = requests.get(

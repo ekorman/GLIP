@@ -20,7 +20,6 @@ class GLIP(object):
         cfg,
         device: torch.device,
         model_weight_path: str,
-        confidence_threshold=0.7,
         min_image_size=None,
     ):
         self.cfg = cfg
@@ -40,7 +39,6 @@ class GLIP(object):
         self.masker = Masker(threshold=mask_threshold, padding=1)
         self.palette = torch.tensor([2**25 - 1, 2**15 - 1, 2**21 - 1])
         self.cpu_device = torch.device("cpu")
-        self.confidence_threshold = confidence_threshold
 
         self.tokenizer = self.build_tokenizer()
 
@@ -154,13 +152,8 @@ class GLIP(object):
         scores = predictions.get_field("scores")
         labels = predictions.get_field("labels").tolist()
         thresh = scores.clone()
-        for i, lb in enumerate(labels):
-            if isinstance(self.confidence_threshold, float):
-                thresh[i] = threshold
-            elif len(self.confidence_threshold) == 1:
-                thresh[i] = threshold
-            else:
-                thresh[i] = self.confidence_threshold[lb - 1]
+        for i in range(len(labels)):
+            thresh[i] = threshold
         keep = torch.nonzero(scores > thresh).squeeze(1)
         predictions = predictions[keep]
 

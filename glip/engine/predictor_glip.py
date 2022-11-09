@@ -323,3 +323,24 @@ def make_glip_l_cfg() -> CfgNode:
     glip_l_cfg.DATALOADER.SIZE_DIVISIBILITY = 32
 
     return glip_l_cfg
+
+
+def make_glip_t(
+    device: torch.device, model_weight_path: str, min_image_size: int = None
+) -> GLIP:
+    return GLIP(
+        cfg=make_glip_t_cfg(),
+        model_weight_path=model_weight_path,
+        device=device,
+        min_image_size=min_image_size,
+    )
+
+def make_glip_l(
+    device: torch.device, model_weight_path: str, min_image_size: int = None
+) -> GLIP:
+    return GLIP(
+        cfg=make_glip_l_cfg(),
+        model_weight_path=model_weight_path,
+        device=device,
+        min_image_size=min_image_size,
+    )

@@ -58,9 +58,10 @@ def get_extensions():
 
 
 setup(
-    name="glip",
+    name="glip-object-detection",
     version="0.0.1",
-    description="object detection in pytorch",
+    description="GLIP object detection in PyTorch",
+    url="https://github.com/ekorman/GLIP",
     packages=find_packages(
         exclude=(
             "configs",

@@ -19,6 +19,7 @@ RUN apt install -y build-essential
 
 RUN mkdir /code
 
+RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 COPY ./glip /code/glip

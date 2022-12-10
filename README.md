@@ -4,4 +4,4 @@ This is a fork of the [official repository](https://github.com/microsoft/GLIP) w
 
 1. Change the package name from `"maskrcnn"` to `"glip"`.
 2. Remove a lot of unncessary dependencies.
-3. Have a Docker image
+3. Build wheels and publish to [PyPI](https://pypi.org/project/glip-object-detection/).

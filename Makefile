@@ -12,6 +12,6 @@ publish-py38-whl :
 	docker build --build-arg PYTHONVERSION=38 -t glip-build-py38 -f Dockerfile.build .
 	docker run glip-build-py38
 
-build-py39-build-docker :
+public-py39-whl :
 	docker build --build-arg PYTHONVERSION=39 -t glip-build-py39 -f Dockerfile.build .
 	docker run glip-build-py38

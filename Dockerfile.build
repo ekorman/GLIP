@@ -20,3 +20,5 @@ RUN auditwheel repair --exclude libc10.so \
     dist/glip_object_detection-0.0.1-cp${PYTHONVERSION}-cp${PYTHONVERSION}-linux_x86_64.whl
 
 RUN $PYTHON -m pip install twine
+
+CMD ["twine", "upload", "-u", "__token__", "-p ${PYPITOKEN}", "wheelhouse/glip_object_detection-0.0.1-cp${PYTHONVERSION}-cp${PYTHONVERSION}-manylinux_2_27_x86_64.whl"]

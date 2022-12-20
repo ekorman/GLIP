@@ -1,2 +1,10 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-__version__ = "0.0.1"
+import importlib.metadata
+
+from transformers import logging
+
+logging.set_verbosity_error()
+
+try:
+    __version__ = importlib.metadata.version("glip-object-detection")
+except importlib.metadata.PackageNotFoundError:
+    __version__ = ""

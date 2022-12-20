@@ -1,0 +1,28 @@
+FROM pytorch/manylinux-cuda102
+
+ARG PYTHONVERSION=38
+
+ARG PYTHON=/opt/python/cp${PYTHONVERSION}-cp${PYTHONVERSION}/bin/python
+RUN $PYTHON -m pip install -U pip
+RUN $PYTHON -m pip install torch==1.9.0 numpy
+
+COPY ./setup.py /code/setup.py
+COPY ./glip /code/glip
+WORKDIR /code
+RUN $PYTHON setup.py bdist_wheel
+# all these exludes prevent shipping torch libraries with the wheel
+RUN auditwheel repair --exclude libc10.so \
+    --exclude libtorch.so \
+    --exclude libtorch_cuda.so \
+    --exclude libtorch_cpu.so \
+    --exclude libc10_cuda.so \
+    --exclude libtorch_python.so \
+    --plat manylinux_2_27_x86_64 \
+    dist/glip_object_detection-0.0.1-cp${PYTHONVERSION}-cp${PYTHONVERSION}-linux_x86_64.whl
+
+RUN $PYTHON -m pip install twine
+
+ENV PYTHON ${PYTHON}
+ENV PYTHONVERSION ${PYTHONVERSION}
+
+CMD ["sh", "-c", "${PYTHON} -m twine upload -u __token__ -p ${PYPITOKEN} /code/wheelhouse/glip_object_detection-0.0.1-cp${PYTHONVERSION}-cp${PYTHONVERSION}-manylinux_2_27_x86_64.whl"]

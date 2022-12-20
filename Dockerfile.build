@@ -18,11 +18,11 @@ RUN auditwheel repair --exclude libc10.so \
     --exclude libc10_cuda.so \
     --exclude libtorch_python.so \
     --plat manylinux_2_27_x86_64 \
-    dist/glip_object_detection-0.0.1-cp${PYTHONVERSION}-cp${PYTHONVERSION}-linux_x86_64.whl
+    dist/glip_object_detection-*-cp${PYTHONVERSION}-cp${PYTHONVERSION}-linux_x86_64.whl
 
 RUN $PYTHON -m pip install twine
 
 ENV PYTHON ${PYTHON}
 ENV PYTHONVERSION ${PYTHONVERSION}
 
-CMD ["sh", "-c", "${PYTHON} -m twine upload -u __token__ -p ${PYPITOKEN} /code/wheelhouse/glip_object_detection-0.0.1-cp${PYTHONVERSION}-cp${PYTHONVERSION}-manylinux_2_27_x86_64.whl"]
+CMD ["sh", "-c", "${PYTHON} -m twine upload -u __token__ -p ${PYPITOKEN} /code/wheelhouse/glip_object_detection-*-cp${PYTHONVERSION}-cp${PYTHONVERSION}-manylinux_2_27_x86_64.whl"]
